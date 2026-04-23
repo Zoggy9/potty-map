@@ -2,551 +2,569 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Potty Map v2.5🚽</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<title>Potty Map</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
 <style>
-  :root {
-    --bg: #f5f2eb;
-    --surface: #fffef9;
-    --surface2: #f0ede6;
-    --border: #d6d0c4;
-    --border2: #c8c2b4;
-    --text: #1a1814;
-    --text2: #6b6560;
-    --text3: #9e9890;
-    --green: #2d6a4f;
-    --green-light: #d8f3dc;
-    --green-text: #1b4332;
-    --blue: #1d4e89;
-    --blue-light: #dbeafe;
-    --blue-text: #1e3a5f;
-    --amber: #92400e;
-    --amber-light: #fef3c7;
-    --amber-text: #78350f;
-    --red: #991b1b;
-    --red-light: #fee2e2;
-    --star: #d97706;
-    --radius: 8px;
-    --radius-lg: 12px;
-  }
+:root{
+  --bg:#f5f2eb;--surface:#fffef9;--surface2:#f0ede6;
+  --border:#d6d0c4;--border2:#c8c2b4;
+  --text:#1a1814;--text2:#6b6560;--text3:#9e9890;
+  --green:#2d6a4f;--green-light:#d8f3dc;--green-text:#1b4332;
+  --blue:#1d4e89;--blue-light:#dbeafe;--blue-text:#1e3a5f;
+  --amber:#92400e;--amber-light:#fef3c7;--amber-text:#78350f;
+  --red:#991b1b;--red-light:#fee2e2;--star:#d97706;
+  --r:8px;--rl:12px;--hh:52px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);height:100%;overflow:hidden;}
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+header{position:fixed;top:0;left:0;right:0;height:var(--hh);background:var(--surface);border-bottom:1px solid var(--border);padding:0 14px;display:flex;align-items:center;justify-content:space-between;z-index:1100;}
+.logo{display:flex;align-items:center;gap:9px;font-size:16px;font-weight:600;}
+.logo-icon{width:28px;height:28px;background:var(--green);border-radius:var(--r);display:flex;align-items:center;justify-content:center;font-size:14px;}
+.header-right{display:flex;align-items:center;gap:8px;}
+.header-hint{font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;}
+.sync-badge{font-size:11px;font-family:'DM Mono',monospace;padding:3px 9px;border-radius:20px;border:1px solid var(--border);display:flex;align-items:center;gap:5px;transition:all .3s;}
+.sync-badge.syncing{background:var(--amber-light);color:var(--amber-text);border-color:var(--amber);}
+.sync-badge.ok{background:var(--green-light);color:var(--green-text);border-color:var(--green);}
+.sync-badge.err{background:var(--red-light);color:var(--red);border-color:var(--red);}
+.sync-dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0;}
+.syncing .sync-dot{animation:pulse 1s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  }
+#map{position:fixed;top:var(--hh);left:0;right:0;bottom:0;z-index:0;}
 
-  header {
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    padding: 0 20px;
-    height: 52px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-shrink: 0;
-    z-index: 1000;
-  }
+#fab{position:fixed;bottom:136px;right:16px;width:54px;height:54px;border-radius:50%;background:var(--green);color:#fff;border:none;font-size:28px;box-shadow:0 3px 14px rgba(0,0,0,.28);cursor:pointer;z-index:1050;display:none;align-items:center;justify-content:center;transition:transform .15s,background .15s;}
+#fab:active{transform:scale(.91);background:var(--green-text);}
 
-  .logo { display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 600; color: var(--text); letter-spacing: -0.3px; }
-  .logo-icon { width: 30px; height: 30px; background: var(--green); border-radius: var(--radius); display: flex; align-items: center; justify-content: center; font-size: 15px; }
-  .header-hint { font-size: 12px; color: var(--text3); font-family: 'DM Mono', monospace; }
-  .header-right { display: flex; align-items: center; gap: 10px; }
-  .header-count { font-size: 12px; color: var(--text2); background: var(--surface2); border: 1px solid var(--border); border-radius: 20px; padding: 3px 10px; font-family: 'DM Mono', monospace; }
+#sheet{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-radius:16px 16px 0 0;border-top:1px solid var(--border);z-index:1000;display:none;flex-direction:column;transition:transform .3s cubic-bezier(.4,0,.2,1);max-height:calc(100vh - var(--hh) - 16px);}
+#sheet.peek{transform:translateY(calc(100% - 116px));}
+#sheet.half{transform:translateY(38%);}
+#sheet.full{transform:translateY(0);}
+.handle-wrap{padding:10px 0 4px;display:flex;justify-content:center;cursor:grab;flex-shrink:0;touch-action:none;}
+.handle{width:38px;height:4px;border-radius:2px;background:var(--border2);}
+.sheet-titlerow{padding:0 15px 8px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.sheet-title{font-size:14px;font-weight:600;}
+.sheet-count{font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;}
 
-  .sync-badge { font-size: 11px; font-family: 'DM Mono', monospace; padding: 3px 10px; border-radius: 20px; border: 1px solid var(--border); display: flex; align-items: center; gap: 5px; transition: all .3s; }
-  .sync-badge.syncing { background: var(--amber-light); color: var(--amber-text); border-color: var(--amber); }
-  .sync-badge.ok { background: var(--green-light); color: var(--green-text); border-color: var(--green); }
-  .sync-badge.err { background: var(--red-light); color: var(--red); border-color: var(--red); }
-  .sync-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
-  .syncing .sync-dot { animation: pulse 1s infinite; }
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+#sidebar{display:none;position:fixed;top:var(--hh);right:0;bottom:0;width:320px;background:var(--surface);border-left:1px solid var(--border);flex-direction:column;overflow:hidden;z-index:900;}
 
-  #layout { display: flex; flex: 1; overflow: hidden; position: relative; }
-  #map { flex: 1; min-width: 0; }
+.filter-bar{padding:8px 12px;border-bottom:1px solid var(--border);display:flex;gap:6px;overflow-x:auto;flex-shrink:0;background:var(--surface2);-webkit-overflow-scrolling:touch;}
+.filter-bar::-webkit-scrollbar{display:none;}
+.filter-btn{font-size:11px;font-family:'DM Mono',monospace;padding:5px 11px;border-radius:20px;border:1px solid var(--border2);background:var(--surface);color:var(--text2);cursor:pointer;white-space:nowrap;flex-shrink:0;min-height:32px;}
+.filter-btn.active{background:var(--green);color:#fff;border-color:var(--green);}
 
-  #sidebar { width: 320px; flex-shrink: 0; background: var(--surface); border-left: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; }
+#panel,#mpanel{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.s-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;}
 
-  .filter-bar { padding: 10px 14px; border-bottom: 1px solid var(--border); display: flex; gap: 6px; flex-wrap: wrap; flex-shrink: 0; background: var(--surface2); }
-  .filter-btn { font-size: 11px; font-family: 'DM Mono', monospace; padding: 4px 10px; border-radius: 20px; border: 1px solid var(--border2); background: var(--surface); color: var(--text2); cursor: pointer; transition: all .15s; white-space: nowrap; }
-  .filter-btn:hover { background: var(--bg); }
-  .filter-btn.active { background: var(--green); color: #fff; border-color: var(--green); }
+.list-item{padding:13px 15px;border-bottom:1px solid var(--border);cursor:pointer;display:flex;gap:10px;align-items:flex-start;min-height:64px;}
+.list-item:active{background:var(--surface2);}
+.li-icon{width:36px;height:36px;border-radius:var(--r);background:var(--green-light);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;}
+.li-content{flex:1;min-width:0;}
+.li-name{font-size:14px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.li-addr{font-size:11px;color:var(--blue);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.li-meta{display:flex;align-items:center;gap:6px;margin-top:4px;flex-wrap:wrap;}
+.li-stars{font-size:12px;color:var(--star);}
+.li-count{font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;}
 
-  #panel { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-  .s-scroll { flex: 1; overflow-y: auto; }
+.tag{display:inline-flex;align-items:center;gap:3px;font-size:10px;padding:2px 7px;border-radius:20px;font-weight:500;white-space:nowrap;}
+.tag-ada{background:var(--blue-light);color:var(--blue-text);}
+.tag-free{background:var(--green-light);color:var(--green-text);}
+.tag-keyed{background:var(--amber-light);color:var(--amber-text);}
+.tag-outdoors{background:#f3e8ff;color:#5b21b6;}
+.tag-diaper{background:#fce7f3;color:#9d174d;}
+.tag-neutral{background:#e0f2fe;color:#075985;}
 
-  .list-item { padding: 13px 15px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background .12s; display: flex; gap: 10px; align-items: flex-start; }
-  .list-item:hover { background: var(--surface2); }
+.back-btn{display:flex;align-items:center;gap:7px;padding:12px 15px;border-bottom:1px solid var(--border);cursor:pointer;font-size:13px;color:var(--text2);flex-shrink:0;background:var(--surface2);min-height:44px;}
+.back-btn:active{background:var(--bg);}
 
-  .li-icon { width: 34px; height: 34px; border-radius: var(--radius); background: var(--green-light); display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; margin-top: 1px; }
-  .li-content { flex: 1; min-width: 0; }
-  .li-name { font-size: 13px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .li-addr { font-size: 11px; color: var(--blue); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .li-meta { display: flex; align-items: center; gap: 6px; margin-top: 4px; flex-wrap: wrap; }
-  .li-stars { font-size: 11px; color: var(--star); }
-  .li-count { font-size: 10px; color: var(--text3); font-family: 'DM Mono', monospace; }
+.detail-body{flex:1;overflow-y:auto;padding:16px;-webkit-overflow-scrolling:touch;}
+.d-name{font-size:17px;font-weight:600;color:var(--text);margin-bottom:4px;line-height:1.3;}
+.d-addr{font-size:12px;color:var(--blue);text-decoration:none;display:flex;align-items:center;gap:4px;margin-bottom:10px;font-family:'DM Mono',monospace;}
+.d-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px;}
+.d-desc{font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:14px;}
 
-  .tag { display: inline-flex; align-items: center; gap: 3px; font-size: 10px; padding: 2px 7px; border-radius: 20px; font-weight: 500; white-space: nowrap; }
-  .tag-ada { background: var(--blue-light); color: var(--blue-text); }
-  .tag-free { background: var(--green-light); color: var(--green-text); }
-  .tag-keyed { background: var(--amber-light); color: var(--amber-text); }
-  .tag-outdoors { background: #f3e8ff; color: #5b21b6; }
-  .tag-diaper { background: #fce7f3; color: #9d174d; }
-  .tag-neutral { background: #e0f2fe; color: #075985; }
+.avg-row{display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--rl);margin-bottom:14px;}
+.avg-big{font-size:24px;font-weight:600;color:var(--text);font-family:'DM Mono',monospace;}
+.avg-stars-big{font-size:18px;color:var(--star);}
+.avg-label{font-size:11px;color:var(--text3);margin-top:1px;}
 
-  .back-btn { display: flex; align-items: center; gap: 7px; padding: 10px 14px; border-bottom: 1px solid var(--border); cursor: pointer; font-size: 12px; color: var(--text2); flex-shrink: 0; background: var(--surface2); transition: background .12s; }
-  .back-btn:hover { background: var(--bg); }
+.rev-title{font-size:11px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;font-family:'DM Mono',monospace;margin-bottom:8px;}
+.rev-item{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:10px 12px;margin-bottom:8px;}
+.rev-stars{font-size:13px;color:var(--star);margin-bottom:3px;}
+.rev-text{font-size:13px;color:var(--text2);line-height:1.6;}
+.rev-author{font-size:11px;color:var(--text3);margin-top:5px;font-family:'DM Mono',monospace;}
 
-  .detail-body { flex: 1; overflow-y: auto; padding: 16px; }
-  .d-name { font-size: 16px; font-weight: 600; color: var(--text); margin-bottom: 4px; line-height: 1.3; }
-  .d-addr { font-size: 12px; color: var(--blue); text-decoration: none; display: flex; align-items: center; gap: 4px; margin-bottom: 10px; font-family: 'DM Mono', monospace; }
-  .d-addr:hover { text-decoration: underline; }
-  .d-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 12px; }
-  .d-desc { font-size: 12px; color: var(--text2); line-height: 1.7; margin-bottom: 14px; }
+.add-rev-section{border-top:1px solid var(--border);padding:14px 15px;flex-shrink:0;background:var(--surface);}
+.add-rev-title{font-size:13px;font-weight:500;color:var(--text);margin-bottom:8px;}
+.star-picker{display:flex;gap:2px;margin-bottom:10px;}
+.star-btn{font-size:30px;cursor:pointer;color:var(--border2);border:none;background:none;padding:0;line-height:1;min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center;}
+.star-btn.on{color:var(--star);}
 
-  .avg-row { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-lg); margin-bottom: 14px; }
-  .avg-big { font-size: 22px; font-weight: 600; color: var(--text); font-family: 'DM Mono', monospace; }
-  .avg-stars-big { font-size: 16px; color: var(--star); }
-  .avg-label { font-size: 11px; color: var(--text3); margin-top: 1px; }
+textarea,input[type=text]{width:100%;font-size:16px;padding:10px 12px;border-radius:var(--r);border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-family:'DM Sans',sans-serif;outline:none;transition:border-color .15s;margin-bottom:8px;-webkit-appearance:none;appearance:none;}
+textarea:focus,input[type=text]:focus{border-color:var(--green);}
+textarea{resize:none;}
 
-  .rev-title { font-size: 11px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: .08em; font-family: 'DM Mono', monospace; margin-bottom: 8px; }
-  .rev-item { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 12px; margin-bottom: 8px; }
-  .rev-stars { font-size: 12px; color: var(--star); margin-bottom: 3px; }
-  .rev-text { font-size: 12px; color: var(--text2); line-height: 1.6; }
-  .rev-author { font-size: 10px; color: var(--text3); margin-top: 5px; font-family: 'DM Mono', monospace; }
+.btn{font-size:14px;font-weight:500;padding:11px 16px;border-radius:var(--r);border:1px solid var(--border2);background:transparent;color:var(--text);cursor:pointer;font-family:'DM Sans',sans-serif;min-height:44px;-webkit-appearance:none;}
+.btn:active{background:var(--surface2);}
+.btn:disabled{opacity:.5;}
+.btn-primary{background:var(--green);color:#fff;border-color:var(--green);}
+.btn-primary:active{background:var(--green-text);}
+.btn-full{width:100%;}
+.btn-danger{color:var(--red);border-color:var(--border2);font-size:12px;padding:8px 12px;}
+.btn-danger:active{background:var(--red-light);}
 
-  .add-rev-section { border-top: 1px solid var(--border); padding: 13px 15px; flex-shrink: 0; background: var(--surface); }
-  .add-rev-title { font-size: 12px; font-weight: 500; color: var(--text); margin-bottom: 8px; }
+.form-section{padding:14px 15px;overflow-y:auto;flex:1;-webkit-overflow-scrolling:touch;}
+.form-section label{display:block;font-size:12px;color:var(--text2);margin-bottom:4px;margin-top:12px;font-weight:500;}
+.tag-checkboxes{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:8px;}
+.tag-check{display:flex;align-items:center;gap:4px;font-size:12px;padding:6px 12px;border-radius:20px;border:1px solid var(--border2);background:var(--surface2);cursor:pointer;user-select:none;min-height:36px;}
+.tag-check input{display:none;}
+.tag-check:has(input:checked){background:var(--green);color:#fff;border-color:var(--green);}
 
-  .star-picker { display: flex; gap: 2px; margin-bottom: 8px; }
-  .star-btn { font-size: 22px; cursor: pointer; color: var(--border2); border: none; background: none; padding: 0; line-height: 1; transition: color .1s, transform .1s; }
-  .star-btn:hover, .star-btn.on { color: var(--star); }
-  .star-btn:hover { transform: scale(1.15); }
+.empty{padding:32px 16px;text-align:center;font-size:13px;color:var(--text3);line-height:1.8;}
+.empty-icon{font-size:32px;display:block;margin-bottom:10px;}
+.form-hint{font-size:11px;color:var(--text3);margin-bottom:14px;font-family:'DM Mono',monospace;}
+.coords-badge{font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:5px 9px;margin-bottom:12px;display:inline-block;}
+.detail-actions{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:8px;}
 
-  textarea, input[type=text] { width: 100%; font-size: 12px; padding: 8px 10px; border-radius: var(--radius); border: 1px solid var(--border2); background: var(--surface2); color: var(--text); font-family: 'DM Sans', sans-serif; outline: none; transition: border-color .15s; margin-bottom: 7px; }
-  textarea:focus, input[type=text]:focus { border-color: var(--green); }
-  textarea { resize: none; }
+.loading-overlay{position:fixed;inset:0;background:rgba(245,242,235,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;z-index:9999;font-size:13px;color:var(--text2);font-family:'DM Mono',monospace;}
+.spinner{width:24px;height:24px;border:2px solid var(--border2);border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
 
-  .btn { font-size: 12px; font-weight: 500; padding: 8px 14px; border-radius: var(--radius); border: 1px solid var(--border2); background: transparent; color: var(--text); cursor: pointer; transition: all .15s; font-family: 'DM Sans', sans-serif; }
-  .btn:hover { background: var(--surface2); }
-  .btn:disabled { opacity: .5; cursor: not-allowed; }
-  .btn-primary { background: var(--green); color: #fff; border-color: var(--green); }
-  .btn-primary:hover:not(:disabled) { background: var(--green-text); border-color: var(--green-text); }
-  .btn-full { width: 100%; }
-  .btn-danger { background: transparent; color: var(--red); border-color: var(--border2); font-size: 11px; padding: 5px 10px; }
-  .btn-danger:hover { background: var(--red-light); border-color: var(--red); }
+.photo-gallery{display:flex;gap:8px;overflow-x:auto;margin-bottom:14px;padding-bottom:4px;-webkit-overflow-scrolling:touch;}
+.photo-thumb{width:90px;height:90px;object-fit:cover;border-radius:var(--r);border:1px solid var(--border);flex-shrink:0;cursor:pointer;}
+.lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,.9);align-items:center;justify-content:center;z-index:99999;cursor:pointer;}
+.lightbox.open{display:flex;}
+.lightbox img{max-width:96vw;max-height:90vh;border-radius:var(--r);}
+.upload-zone{border:1.5px dashed var(--border2);border-radius:var(--r);padding:18px 10px;text-align:center;cursor:pointer;margin-bottom:8px;background:var(--surface2);}
+.upload-zone input[type=file]{display:none;}
+.upload-zone-icon{font-size:24px;display:block;margin-bottom:5px;}
+.upload-zone-text{font-size:13px;color:var(--text2);}
+.upload-zone-hint{font-size:10px;color:var(--text3);margin-top:3px;font-family:'DM Mono',monospace;}
+.preview-grid{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;}
+.preview-wrap{position:relative;width:68px;height:68px;}
+.preview-wrap img{width:68px;height:68px;object-fit:cover;border-radius:var(--r);border:1px solid var(--border);}
+.preview-remove{position:absolute;top:-6px;right:-6px;width:22px;height:22px;background:var(--red);color:#fff;border-radius:50%;border:none;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.upload-progress{font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+.add-photos-btn{font-size:12px;color:var(--blue);background:none;border:1px solid var(--border2);border-radius:var(--r);padding:7px 12px;cursor:pointer;font-family:'DM Sans',sans-serif;min-height:36px;}
+.add-photos-btn input[type=file]{display:none;}
 
-  .form-section { padding: 14px 15px; overflow-y: auto; flex: 1; }
-  .form-section label { display: block; font-size: 11px; color: var(--text2); margin-bottom: 3px; margin-top: 10px; font-weight: 500; }
+.press-ring{position:fixed;pointer-events:none;width:56px;height:56px;margin-left:-28px;margin-top:-28px;border-radius:50%;border:3px solid var(--green);z-index:800;opacity:0;transform:scale(0);transition:transform .55s ease-out,opacity .55s ease-out;}
+.press-ring.active{transform:scale(1);opacity:.8;}
 
-  .tag-checkboxes { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 7px; }
-  .tag-check { display: flex; align-items: center; gap: 4px; font-size: 11px; padding: 4px 10px; border-radius: 20px; border: 1px solid var(--border2); background: var(--surface2); cursor: pointer; transition: all .15s; user-select: none; }
-  .tag-check input { display: none; }
-  .tag-check:has(input:checked) { background: var(--green); color: #fff; border-color: var(--green); }
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px;}
 
-  .empty { padding: 32px 16px; text-align: center; font-size: 12px; color: var(--text3); line-height: 1.8; }
-  .empty-icon { font-size: 28px; display: block; margin-bottom: 8px; }
-  .form-hint { font-size: 10px; color: var(--text3); margin-bottom: 12px; font-family: 'DM Mono', monospace; }
-  .coords-badge { font-size: 10px; color: var(--text3); font-family: 'DM Mono', monospace; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: 4px 8px; margin-bottom: 12px; display: inline-block; }
-  .detail-actions { display: flex; justify-content: flex-end; margin-bottom: 14px; }
-
-  .leaflet-container { cursor: crosshair !important; }
-
-  .loading-overlay { position: absolute; inset: 0; background: rgba(245,242,235,0.9); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; z-index: 9999; font-size: 13px; color: var(--text2); font-family: 'DM Mono', monospace; }
-  .spinner { width: 24px; height: 24px; border: 2px solid var(--border2); border-top-color: var(--green); border-radius: 50%; animation: spin .7s linear infinite; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  ::-webkit-scrollbar { width: 5px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
+@media(min-width:700px){
+  #map{right:320px;}
+  #sidebar{display:flex;}
+  #sheet{display:none!important;}
+  #fab{display:none!important;}
+  .header-hint{display:block;}
+}
+@media(max-width:699px){
+  #map{right:0;bottom:0;}
+  #sidebar{display:none;}
+  #sheet{display:flex;}
+  #fab{display:flex;}
+  .header-hint{display:none;}
+}
 </style>
 </head>
 <body>
 
 <header>
-  <div class="logo">
-    <div class="logo-icon">🚽</div>
-    Potty Map
-  </div>
-  <span class="header-hint">dbl-click map to add</span>
+  <div class="logo"><div class="logo-icon">🚽</div>Potty Map</div>
+  <span class="header-hint">double-click map to add</span>
   <div class="header-right">
-    <div class="sync-badge ok" id="sync-badge">
-      <div class="sync-dot"></div>
-      <span id="sync-label">live</span>
-    </div>
-    <span class="header-count" id="hcount">loading...</span>
+    <div class="sync-badge ok" id="sync-badge"><div class="sync-dot"></div><span id="sync-label">live</span></div>
   </div>
 </header>
 
-<div id="layout">
-  <div id="map"></div>
-  <div id="sidebar">
-    <div class="filter-bar">
-      <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
-      <button class="filter-btn" onclick="setFilter('5',this)">5 ★ only</button>
-      <button class="filter-btn" onclick="setFilter('4',this)">4+ ★</button>
-      <button class="filter-btn" onclick="setFilter('3',this)">3+ ★</button>
-      <button class="filter-btn" onclick="setFilter('ada',this)">♿ ADA</button>
-      <button class="filter-btn" onclick="setFilter('free',this)">Free-to-use</button>
-      <button class="filter-btn" onclick="setFilter('diaper',this)">👶 Diaper-changing Station</button>
-      <button class="filter-btn" onclick="setFilter('neutral',this)">⚧ Gender-Neutral</button>
-    </div>
-    <div id="panel"></div>
-  </div>
-  <div class="loading-overlay" id="loading">
-    <div class="spinner"></div>
-    <span>Connecting to database...</span>
-  </div>
+<div id="sidebar">
+  <div class="filter-bar" id="df"></div>
+  <div id="panel"></div>
 </div>
+
+<div id="sheet" class="peek">
+  <div class="handle-wrap" id="handle"><div class="handle"></div></div>
+  <div class="sheet-titlerow">
+    <span class="sheet-title">Restrooms nearby</span>
+    <span class="sheet-count" id="hcount">loading...</span>
+  </div>
+  <div class="filter-bar" id="mf"></div>
+  <div id="mpanel"></div>
+</div>
+
+<button id="fab" onclick="fabTap()">+</button>
+<div class="press-ring" id="press-ring"></div>
+
+<div class="loading-overlay" id="loading"><div class="spinner"></div><span>Connecting to database...</span></div>
+<div class="lightbox" id="lightbox" onclick="closeLightbox()"><img id="lightbox-img" src="" alt=""/></div>
+<div id="map"></div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-const SUPABASE_URL = 'https://mqfwaehuvtcajqcasrdw.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1xZndhZWh1dnRjYWpxY2FzcmR3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4OTY5MTUsImV4cCI6MjA5MjQ3MjkxNX0.cLu_OS4h6U5YWot28vqT7tYlvJu6UcW2f1oeWwXHVTQ';
+const SB_URL='https://mqfwaehuvtcajqcasrdw.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1xZndhZWh1dnRjYWpxY2FzcmR3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4OTY5MTUsImV4cCI6MjA5MjQ3MjkxNX0.cLu_OS4h6U5YWot28vqT7tYlvJu6UcW2f1oeWwXHVTQ';
 
-const TAG_DEFS = [
-  { id: 'ada',      label: '♿ ADA accessible',     cls: 'tag-ada' },
-  { id: 'free',     label: '🆓 Free to use',        cls: 'tag-free' },
-  { id: 'keyed',    label: '🔑 Key required',       cls: 'tag-keyed' },
-  { id: 'outdoors', label: '🌿 Outdoors',            cls: 'tag-outdoors' },
-  { id: 'diaper',   label: '👶 Diaper changing',    cls: 'tag-diaper' },
-  { id: 'neutral',  label: '⚧ Gender neutral',     cls: 'tag-neutral' },
+const TAG_DEFS=[
+  {id:'ada',label:'♿ ADA',cls:'tag-ada'},
+  {id:'free',label:'🆓 Free',cls:'tag-free'},
+  {id:'keyed',label:'🔑 Key req.',cls:'tag-keyed'},
+  {id:'outdoors',label:'🌿 Outdoors',cls:'tag-outdoors'},
+  {id:'diaper',label:'👶 Diaper',cls:'tag-diaper'},
+  {id:'neutral',label:'⚧ Neutral',cls:'tag-neutral'},
+];
+const FILTERS=[
+  {id:'all',label:'All'},{id:'5',label:'★ 5'},{id:'4',label:'★ 4+'},
+  {id:'3',label:'★ 3+'},{id:'ada',label:'♿ ADA'},{id:'free',label:'Free'},
+  {id:'diaper',label:'👶 Diaper'},{id:'neutral',label:'⚧ Neutral'},
 ];
 
-let map, markers = {}, potties = [], selectedId = null, pendingLatLng = null, addRating = 0, currentFilter = 'all';
+let map,markers={},potties=[],selectedId=null,pendingLatLng=null;
+let addRating=0,currentFilter='all',pendingFiles=[];
+const mob=()=>window.innerWidth<700;
 
-async function sb(path, opts = {}) {
-  const headers = {
-    'apikey': SUPABASE_KEY,
-    'Authorization': `Bearer ${SUPABASE_KEY}`,
-    'Content-Type': 'application/json',
-    'Prefer': 'return=representation',
-    ...(opts.extraHeaders || {})
-  };
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
-    method: opts.method || 'GET',
-    headers,
-    body: opts.body || undefined
+// Sheet drag
+const sheet=document.getElementById('sheet');
+let dy0=0,dt0=0,dragging=false;
+function sheetY(){return new DOMMatrix(window.getComputedStyle(sheet).transform).m42;}
+document.getElementById('handle').addEventListener('touchstart',e=>{
+  dragging=true;dy0=e.touches[0].clientY;dt0=sheetY();sheet.style.transition='none';
+},{passive:true});
+document.addEventListener('touchmove',e=>{
+  if(!dragging)return;
+  sheet.style.transform=`translateY(${Math.max(0,dt0+(e.touches[0].clientY-dy0))}px)`;
+},{passive:true});
+document.addEventListener('touchend',()=>{
+  if(!dragging)return;dragging=false;sheet.style.transition='';
+  const cur=sheetY(),h=sheet.offsetHeight;
+  const opts=[{s:'full',y:0},{s:'half',y:h*.38},{s:'peek',y:h-116}];
+  let best=opts[0];opts.forEach(o=>{if(Math.abs(o.y-cur)<Math.abs(best.y-cur))best=o;});
+  setSheet(best.s);
+});
+function setSheet(s){sheet.classList.remove('peek','half','full');sheet.classList.add(s);sheet.style.transform='';}
+
+// Supabase
+async function sb(path,opts={}){
+  const res=await fetch(`${SB_URL}/rest/v1/${path}`,{
+    method:opts.method||'GET',
+    headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'return=representation',...(opts.h||{})},
+    body:opts.body||undefined
   });
-  if (!res.ok) throw new Error(await res.text());
-  const text = await res.text();
-  return text ? JSON.parse(text) : null;
+  if(!res.ok)throw new Error(await res.text());
+  const t=await res.text();return t?JSON.parse(t):null;
+}
+function setSync(s,l){document.getElementById('sync-badge').className='sync-badge '+s;document.getElementById('sync-label').textContent=l;}
+function updateCount(){const n=potties.length;document.getElementById('hcount').textContent=n+' restroom'+(n!==1?'s':'');}
+
+// Images
+async function uploadImage(file,pid){
+  const ext=file.name.split('.').pop();
+  const path=`${pid}/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
+  const res=await fetch(`${SB_URL}/storage/v1/object/potty-images/${path}`,{method:'POST',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':file.type},body:file});
+  if(!res.ok)throw new Error(await res.text());
+  return `${SB_URL}/storage/v1/object/public/potty-images/${path}`;
+}
+async function uploadAll(files,pid){const u=[];for(const f of files)u.push(await uploadImage(f,pid));return u;}
+async function saveImages(pid,urls){
+  const p=potties.find(x=>x.id===pid);
+  const merged=[...(p?p.images||[]:[]),...urls];
+  await sb(`potties?id=eq.${pid}`,{method:'PATCH',body:JSON.stringify({images:merged})});
+  if(p)p.images=merged;
+}
+function openLightbox(url){document.getElementById('lightbox-img').src=url;document.getElementById('lightbox').classList.add('open');}
+function closeLightbox(){document.getElementById('lightbox').classList.remove('open');}
+function renderPreviews(){
+  const g=document.getElementById('preview-grid');if(!g)return;
+  g.innerHTML=pendingFiles.map((f,i)=>`<div class="preview-wrap"><img src="${URL.createObjectURL(f)}"/><button class="preview-remove" onclick="removePending(${i})">x</button></div>`).join('');
+}
+function removePending(i){pendingFiles.splice(i,1);renderPreviews();}
+function handleFileInput(input){
+  const files=[...input.files].filter(f=>f.type.startsWith('image/')).slice(0,5-pendingFiles.length);
+  pendingFiles.push(...files);if(pendingFiles.length>5)pendingFiles=pendingFiles.slice(0,5);
+  renderPreviews();input.value='';
 }
 
-function setSync(state, label) {
-  const el = document.getElementById('sync-badge');
-  el.className = 'sync-badge ' + state;
-  document.getElementById('sync-label').textContent = label;
+// Data
+async function loadPotties(){
+  setSync('syncing','loading...');
+  const rows=await sb('potties?select=*,reviews(*)&order=created_at.asc');
+  potties=(rows||[]).map(r=>({...r,tags:r.tags||[],images:r.images||[],reviews:r.reviews||[]}));
+  potties.forEach(p=>{if(!markers[p.id])addMarker(p);});
+  setSync('ok','live');updateCount();
+  document.getElementById('loading').style.display='none';
+  renderPanel();
+}
+async function createPotty(d){
+  setSync('syncing','saving...');
+  const rows=await sb('potties',{method:'POST',body:JSON.stringify({name:d.name,description:d.desc,address:d.addr,lat:d.lat,lng:d.lng,tags:d.tags,images:[]})});
+  const p={...rows[0],tags:rows[0].tags||[],images:[],reviews:[]};
+  potties.push(p);setSync('ok','saved');updateCount();return p;
+}
+async function createReview(pid,d){
+  setSync('syncing','saving...');
+  const rows=await sb('reviews',{method:'POST',body:JSON.stringify({potty_id:pid,rating:d.rating,text:d.text,author:d.author})});
+  setSync('ok','saved');return rows[0];
+}
+async function deletePottyDB(id){
+  setSync('syncing','deleting...');
+  await sb(`potties?id=eq.${id}`,{method:'DELETE',h:{'Prefer':'return=minimal'}});
+  setSync('ok','live');
 }
 
-function updateCount() {
-  const el = document.getElementById('hcount');
-  el.textContent = potties.length + ' restroom' + (potties.length !== 1 ? 's' : '');
-}
-
-async function loadPotties() {
-  setSync('syncing', 'loading...');
-  const rows = await sb('potties?select=*,reviews(*)&order=created_at.asc');
-  potties = (rows || []).map(r => ({
-    ...r,
-    tags: r.tags || [],
-    reviews: (r.reviews || [])
-  }));
-  potties.forEach(p => { if (!markers[p.id]) addMarker(p); });
-  setSync('ok', 'live');
-  updateCount();
-  document.getElementById('loading').style.display = 'none';
-  showList();
-}
-
-async function createPotty(data) {
-  setSync('syncing', 'saving...');
-  const rows = await sb('potties', {
-    method: 'POST',
-    body: JSON.stringify({ name: data.name, description: data.desc, address: data.addr, lat: data.lat, lng: data.lng, tags: data.tags })
-  });
-  const p = { ...rows[0], tags: rows[0].tags || [], reviews: [] };
-  potties.push(p);
-  setSync('ok', 'saved');
-  updateCount();
-  return p;
-}
-
-async function createReview(pottyId, data) {
-  setSync('syncing', 'saving...');
-  const rows = await sb('reviews', {
-    method: 'POST',
-    body: JSON.stringify({ potty_id: pottyId, rating: data.rating, text: data.text, author: data.author })
-  });
-  setSync('ok', 'saved');
-  return rows[0];
-}
-
-async function deletePottyFromDB(id) {
-  setSync('syncing', 'deleting...');
-  await sb(`potties?id=eq.${id}`, {
-    method: 'DELETE',
-    extraHeaders: { 'Prefer': 'return=minimal' }
-  });
-  setSync('ok', 'live');
-}
-
-function avg(reviews) {
-  if (!reviews || !reviews.length) return 0;
-  return reviews.reduce((a, b) => a + b.rating, 0) / reviews.length;
-}
-
-function starsHtml(n) {
-  let s = '';
-  for (let i = 1; i <= 5; i++) s += i <= Math.round(n) ? '★' : '☆';
-  return s;
-}
-
-function tagsHtml(tags) {
-  return (tags || []).map(t => {
-    const d = TAG_DEFS.find(x => x.id === t);
-    return d ? `<span class="tag ${d.cls}">${d.label}</span>` : '';
-  }).join('');
-}
-
-function makeIcon(active) {
-  return L.divIcon({
-    className: '',
-    html: `<div style="display:flex;align-items:center;justify-content:center"><div style="width:30px;height:36px;background:${active ? '#1d4e89' : '#2d6a4f'};border-radius:50% 50% 50% 0;transform:rotate(-45deg);display:flex;align-items:center;justify-content:center;border:2px solid rgba(255,255,255,0.9)"><span style="transform:rotate(45deg);font-size:14px;line-height:1">🚽</span></div></div>`,
-    iconSize: [30, 36], iconAnchor: [15, 36], popupAnchor: [0, -40]
-  });
-}
-
-function filteredPotties() {
-  return potties.filter(p => {
-    if (currentFilter === 'all') return true;
-    if (currentFilter === 'ada') return (p.tags || []).includes('ada');
-    if (currentFilter === 'free') return (p.tags || []).includes('free');
-    if (currentFilter === 'diaper') return (p.tags || []).includes('diaper');
-    if (currentFilter === 'neutral') return (p.tags || []).includes('neutral');
-    const a = avg(p.reviews);
-    if (currentFilter === '5') return a >= 4.5;
-    if (currentFilter === '4') return a >= 3.5;
-    if (currentFilter === '3') return a >= 2.5;
+// Helpers
+function avg(r){if(!r||!r.length)return 0;return r.reduce((a,b)=>a+b.rating,0)/r.length;}
+function starsHtml(n){let s='';for(let i=1;i<=5;i++)s+=i<=Math.round(n)?'★':'☆';return s;}
+function tagsHtml(tags){return(tags||[]).map(t=>{const d=TAG_DEFS.find(x=>x.id===t);return d?`<span class="tag ${d.cls}">${d.label}</span>`:''}).join('');}
+function filteredPotties(){
+  return potties.filter(p=>{
+    if(currentFilter==='all')return true;
+    if(['ada','free','diaper','neutral','keyed','outdoors'].includes(currentFilter))return(p.tags||[]).includes(currentFilter);
+    const a=avg(p.reviews);
+    if(currentFilter==='5')return a>=4.5;
+    if(currentFilter==='4')return a>=3.5;
+    if(currentFilter==='3')return a>=2.5;
     return true;
   });
 }
 
-function setFilter(f, btn) {
-  currentFilter = f;
-  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  showList();
+// Filters
+function buildFilters(){
+  const html=FILTERS.map(f=>`<button class="filter-btn${f.id==='all'?' active':''}" data-f="${f.id}" onclick="setFilter('${f.id}',this)">${f.label}</button>`).join('');
+  document.getElementById('df').innerHTML=html;
+  document.getElementById('mf').innerHTML=html;
+}
+function setFilter(f,btn){
+  currentFilter=f;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.toggle('active',b.dataset.f===f));
+  renderPanel();
 }
 
-function initMap() {
-  map = L.map('map', { zoomControl: true, doubleClickZoom: false }).setView([41.882, -87.628], 14);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-    maxZoom: 19
+// Map
+function makeIcon(active){
+  return L.divIcon({
+    className:'',
+    html:`<div style="display:flex;align-items:center;justify-content:center"><div style="width:32px;height:38px;background:${active?'#1d4e89':'#2d6a4f'};border-radius:50% 50% 50% 0;transform:rotate(-45deg);display:flex;align-items:center;justify-content:center;border:2.5px solid rgba(255,255,255,.95)"><span style="transform:rotate(45deg);font-size:15px;line-height:1">🚽</span></div></div>`,
+    iconSize:[32,38],iconAnchor:[16,38],popupAnchor:[0,-42]
+  });
+}
+
+function initMap(){
+  map=L.map('map',{zoomControl:true,doubleClickZoom:false,tap:false}).setView([41.882,-87.628],14);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+    attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',maxZoom:19
   }).addTo(map);
-  map.on('dblclick', e => { pendingLatLng = e.latlng; showAddForm(); });
+
+  // Desktop double-click
+  map.on('dblclick',e=>{if(mob())return;pendingLatLng=e.latlng;showAddForm();});
+
+  // Mobile long-press
+  let pressTimer=null,pressLL=null;
+  const ring=document.getElementById('press-ring');
+  const mapEl=map.getContainer();
+
+  mapEl.addEventListener('touchstart',e=>{
+    if(!mob())return;
+    const t=e.touches[0];
+    const rect=mapEl.getBoundingClientRect();
+    pressLL=map.containerPointToLatLng(L.point(t.clientX-rect.left,t.clientY-rect.top));
+    ring.style.left=t.clientX+'px';ring.style.top=t.clientY+'px';
+    ring.classList.add('active');
+    pressTimer=setTimeout(()=>{
+      ring.classList.remove('active');
+      pendingLatLng=pressLL;
+      fabTap();
+    },650);
+  },{passive:true});
+
+  const cancelPress=()=>{clearTimeout(pressTimer);ring.classList.remove('active');};
+  mapEl.addEventListener('touchend',cancelPress,{passive:true});
+  mapEl.addEventListener('touchmove',cancelPress,{passive:true});
 }
 
-function addMarker(p) {
-  const m = L.marker([p.lat, p.lng], { icon: makeIcon(false) }).addTo(map);
-  m.on('click', () => selectPotty(p.id));
-  markers[p.id] = m;
+function addMarker(p){
+  const m=L.marker([p.lat,p.lng],{icon:makeIcon(false)}).addTo(map);
+  m.on('click',()=>selectPotty(p.id));
+  markers[p.id]=m;
 }
+function removeMarker(id){if(markers[id]){map.removeLayer(markers[id]);delete markers[id];}}
 
-function removeMarker(id) {
-  if (markers[id]) { map.removeLayer(markers[id]); delete markers[id]; }
-}
-
-function selectPotty(id) {
-  if (selectedId && markers[selectedId]) markers[selectedId].setIcon(makeIcon(false));
-  selectedId = id;
-  if (markers[id]) markers[id].setIcon(makeIcon(true));
-  const p = potties.find(x => x.id === id);
-  if (p) map.panTo([p.lat, p.lng], { animate: true });
+function selectPotty(id){
+  if(selectedId&&markers[selectedId])markers[selectedId].setIcon(makeIcon(false));
+  selectedId=id;
+  if(markers[id])markers[id].setIcon(makeIcon(true));
+  const p=potties.find(x=>x.id===id);
+  if(p)map.panTo([p.lat,p.lng],{animate:true});
+  if(mob())setSheet('half');
   showDetail(id);
 }
 
-function showList() {
-  if (selectedId && markers[selectedId]) markers[selectedId].setIcon(makeIcon(false));
-  selectedId = null;
-  const fp = filteredPotties();
-  const panel = document.getElementById('panel');
-  if (!potties.length) {
-    panel.innerHTML = `<div class="empty"><span class="empty-icon">🗺️</span>No restrooms yet.<br>Double-click the map to add one!</div>`;
-    return;
+// Panel
+function getPanel(){return mob()?document.getElementById('mpanel'):document.getElementById('panel');}
+function renderPanel(){if(selectedId)showDetail(selectedId);else showList();}
+
+function showList(){
+  if(selectedId&&markers[selectedId])markers[selectedId].setIcon(makeIcon(false));
+  selectedId=null;
+  const fp=filteredPotties(),panel=getPanel();
+  if(!potties.length){
+    const hint=mob()?'Tap + or long-press the map to add!':'Double-click the map to add one!';
+    panel.innerHTML=`<div class="empty"><span class="empty-icon">🗺️</span>No restrooms yet.<br>${hint}</div>`;return;
   }
-  if (!fp.length) {
-    panel.innerHTML = `<div class="empty"><span class="empty-icon">🔍</span>No restrooms match this filter.</div>`;
-    return;
-  }
-  panel.innerHTML = `<div class="s-scroll">${fp.map(p => {
-    const a = avg(p.reviews);
-    const tagBadges = (p.tags || []).map(t => { const d = TAG_DEFS.find(x => x.id === t); return d ? `<span class="tag ${d.cls}">${d.label}</span>` : ''; }).join('');
+  if(!fp.length){panel.innerHTML=`<div class="empty"><span class="empty-icon">🔍</span>No restrooms match this filter.</div>`;return;}
+  panel.innerHTML=`<div class="s-scroll">${fp.map(p=>{
+    const a=avg(p.reviews);
+    const tb=(p.tags||[]).map(t=>{const d=TAG_DEFS.find(x=>x.id===t);return d?`<span class="tag ${d.cls}">${d.label}</span>`:''}).join('');
     return `<div class="list-item" onclick="selectPotty(${p.id})">
       <div class="li-icon">🚽</div>
       <div class="li-content">
         <div class="li-name">${p.name}</div>
         <div class="li-addr">📍 ${p.address}</div>
         <div class="li-meta">
-          ${a ? `<span class="li-stars">${starsHtml(a)}</span><span class="li-count">${a.toFixed(1)} (${p.reviews.length})</span>` : '<span class="li-count">No ratings</span>'}
-          ${tagBadges}
+          ${a?`<span class="li-stars">${starsHtml(a)}</span><span class="li-count">${a.toFixed(1)} (${p.reviews.length})</span>`:'<span class="li-count">No ratings</span>'}
+          ${tb}
         </div>
       </div>
     </div>`;
   }).join('')}</div>`;
 }
 
-function showDetail(id) {
-  addRating = 0;
-  const p = potties.find(x => x.id === id);
-  if (!p) return;
-  const a = avg(p.reviews);
-  const revHtml = p.reviews.length
-    ? p.reviews.map(r => `<div class="rev-item"><div class="rev-stars">${starsHtml(r.rating)}</div><div class="rev-text">${r.text}</div><div class="rev-author">— ${r.author}</div></div>`).join('')
-    : '<div style="font-size:12px;color:var(--text3);padding:8px 0">No reviews yet — be the first!</div>';
+function showDetail(id){
+  addRating=0;
+  const p=potties.find(x=>x.id===id);if(!p)return;
+  const a=avg(p.reviews);
+  const revHtml=p.reviews.length
+    ?p.reviews.map(r=>`<div class="rev-item"><div class="rev-stars">${starsHtml(r.rating)}</div><div class="rev-text">${r.text}</div><div class="rev-author">— ${r.author}</div></div>`).join('')
+    :'<div style="font-size:13px;color:var(--text3);padding:8px 0">No reviews yet — be the first!</div>';
+  const gal=(p.images&&p.images.length)?`<div class="photo-gallery">${p.images.map(u=>`<img class="photo-thumb" src="${u}" onclick="openLightbox('${u}')">`).join('')}</div>`:'';
 
-  document.getElementById('panel').innerHTML = `
-    <div class="back-btn" onclick="showList()">← Back to list</div>
+  getPanel().innerHTML=`
+    <div class="back-btn" onclick="goBack()">← Back</div>
     <div class="detail-body">
+      ${gal}
       <div class="d-name">${p.name}</div>
       <a class="d-addr" href="https://maps.google.com?q=${encodeURIComponent(p.address)}" target="_blank">📍 ${p.address}</a>
       <div class="d-tags">${tagsHtml(p.tags)}</div>
-      <div class="d-desc">${p.description || ''}</div>
-      ${a ? `<div class="avg-row"><div><div class="avg-big">${a.toFixed(1)}</div><div class="avg-label">${p.reviews.length} review${p.reviews.length !== 1 ? 's' : ''}</div></div><div><div class="avg-stars-big">${starsHtml(a)}</div></div></div>` : ''}
-      <div class="detail-actions"><button class="btn btn-danger" onclick="deletePotty(${id})">🗑 Delete</button></div>
-      <div class="rev-title">Reviews</div>
-      ${revHtml}
+      <div class="d-desc">${p.description||''}</div>
+      ${a?`<div class="avg-row"><div><div class="avg-big">${a.toFixed(1)}</div><div class="avg-label">${p.reviews.length} review${p.reviews.length!==1?'s':''}</div></div><div><div class="avg-stars-big">${starsHtml(a)}</div></div></div>`:''}
+      <div class="detail-actions">
+        <label class="add-photos-btn">📷 Add photos<input type="file" accept="image/*" multiple capture="environment" onchange="detailUpload(event,${id})"/></label>
+        <button class="btn btn-danger" onclick="deletePotty(${id})">🗑 Delete</button>
+      </div>
+      <div id="dup"></div>
+      <div class="rev-title">Reviews</div>${revHtml}
     </div>
     <div class="add-rev-section">
       <div class="add-rev-title">Leave a review</div>
-      <div class="star-picker" id="sp">${[1,2,3,4,5].map(i => `<button class="star-btn" data-v="${i}" onclick="setStar(${id},${i})">★</button>`).join('')}</div>
+      <div class="star-picker" id="sp">${[1,2,3,4,5].map(i=>`<button class="star-btn" data-v="${i}" onclick="setStar(${id},${i})">★</button>`).join('')}</div>
       <textarea id="rt" rows="2" placeholder="Share your experience..."></textarea>
       <input type="text" id="ra" placeholder="Your name (optional)"/>
       <button class="btn btn-primary btn-full" id="rev-btn" onclick="submitReview(${id})">Submit review</button>
     </div>`;
 }
 
-function setStar(id, val) {
-  addRating = val;
-  document.querySelectorAll('#sp .star-btn').forEach(b => b.classList.toggle('on', +b.dataset.v <= val));
+async function detailUpload(e,id){
+  const files=[...e.target.files].filter(f=>f.type.startsWith('image/')).slice(0,5);if(!files.length)return;
+  const s=document.getElementById('dup');
+  if(s)s.innerHTML=`<div class="upload-progress"><div class="spinner" style="width:14px;height:14px;border-width:2px"></div> Uploading...</div>`;
+  setSync('syncing','uploading...');
+  try{const u=await uploadAll(files,id);await saveImages(id,u);setSync('ok','saved');showDetail(id);}
+  catch(err){setSync('err','error');if(s)s.innerHTML=`<div style="font-size:11px;color:var(--red);margin-bottom:8px">Upload failed: ${err.message}</div>`;}
 }
 
-async function submitReview(id) {
-  if (!addRating) { alert('Pick a star rating first!'); return; }
-  const text = document.getElementById('rt').value.trim() || 'No comment.';
-  const author = document.getElementById('ra').value.trim() || 'Anonymous';
-  const btn = document.getElementById('rev-btn');
-  btn.disabled = true; btn.textContent = 'Submitting...';
-  try {
-    const rev = await createReview(id, { rating: addRating, text, author });
-    const p = potties.find(x => x.id === id);
-    p.reviews.push(rev);
-    addRating = 0;
-    showDetail(id);
-  } catch(e) {
-    setSync('err', 'error');
-    alert('Could not save review:\n' + e.message);
-    btn.disabled = false; btn.textContent = 'Submit review';
-  }
+function goBack(){
+  if(selectedId&&markers[selectedId])markers[selectedId].setIcon(makeIcon(false));
+  selectedId=null;if(mob())setSheet('peek');showList();
+}
+function setStar(id,val){
+  addRating=val;
+  document.querySelectorAll('#sp .star-btn').forEach(b=>b.classList.toggle('on',+b.dataset.v<=val));
+}
+async function submitReview(id){
+  if(!addRating){alert('Pick a star rating first!');return;}
+  const text=document.getElementById('rt').value.trim()||'No comment.';
+  const author=document.getElementById('ra').value.trim()||'Anonymous';
+  const btn=document.getElementById('rev-btn');btn.disabled=true;btn.textContent='Submitting...';
+  try{
+    const rev=await createReview(id,{rating:addRating,text,author});
+    potties.find(x=>x.id===id)?.reviews.push(rev);addRating=0;showDetail(id);
+  }catch(e){setSync('err','error');alert('Could not save:\n'+e.message);btn.disabled=false;btn.textContent='Submit review';}
+}
+async function deletePotty(id){
+  if(!confirm('Remove this restroom for all visitors?'))return;
+  try{
+    await deletePottyDB(id);potties=potties.filter(x=>x.id!==id);removeMarker(id);selectedId=null;updateCount();
+    if(mob())setSheet('peek');showList();
+  }catch(e){setSync('err','error');alert('Could not delete:\n'+e.message);}
 }
 
-async function deletePotty(id) {
-  if (!confirm('Remove this restroom for all visitors?')) return;
-  try {
-    await deletePottyFromDB(id);
-    potties = potties.filter(x => x.id !== id);
-    removeMarker(id);
-    selectedId = null;
-    updateCount();
-    showList();
-  } catch(e) {
-    setSync('err', 'error');
-    alert('Could not delete:\n' + e.message);
-  }
-}
-
-function showAddForm() {
-  addRating = 0;
-  if (selectedId && markers[selectedId]) markers[selectedId].setIcon(makeIcon(false));
-  selectedId = null;
-  document.getElementById('panel').innerHTML = `
+// Add form
+function fabTap(){if(!pendingLatLng)pendingLatLng=map.getCenter();showAddForm();if(mob())setSheet('full');}
+function showAddForm(){
+  addRating=0;pendingFiles=[];
+  if(selectedId&&markers[selectedId])markers[selectedId].setIcon(makeIcon(false));selectedId=null;
+  getPanel().innerHTML=`
     <div class="back-btn" onclick="cancelAdd()">← Cancel</div>
     <div class="form-section">
-      <div style="font-size:14px;font-weight:600;margin-bottom:6px">Add a restroom</div>
+      <div style="font-size:15px;font-weight:600;margin-bottom:6px">Add a restroom</div>
       <div class="coords-badge">📍 ${pendingLatLng.lat.toFixed(5)}, ${pendingLatLng.lng.toFixed(5)}</div>
       <label>Name *</label>
-      <input type="text" id="nn" placeholder="e.g. Lakefront Park Facilities"/>
+      <input type="text" id="nn" placeholder="e.g. Lakefront Park Facilities" autocomplete="off"/>
       <label>Street address *</label>
-      <input type="text" id="na" placeholder="e.g. 123 Lake Shore Dr, Chicago"/>
+      <input type="text" id="na" placeholder="e.g. 123 Lake Shore Dr" autocomplete="off"/>
       <label>Description</label>
-      <textarea id="nd" rows="3" placeholder="Stalls, cleanliness, hours, accessibility notes..."></textarea>
+      <textarea id="nd" rows="3" placeholder="Stalls, cleanliness, hours, accessibility..."></textarea>
       <label>Features</label>
-      <div class="tag-checkboxes">${TAG_DEFS.map(t => `<label class="tag-check"><input type="checkbox" value="${t.id}"/>${t.label}</label>`).join('')}</div>
+      <div class="tag-checkboxes">${TAG_DEFS.map(t=>`<label class="tag-check"><input type="checkbox" value="${t.id}"/>${t.label}</label>`).join('')}</div>
+      <label>Photos (optional, up to 5)</label>
+      <label class="upload-zone">
+        <input type="file" accept="image/*" multiple capture="environment" onchange="handleFileInput(this)"/>
+        <span class="upload-zone-icon">📷</span>
+        <span class="upload-zone-text">Tap to add photos</span>
+        <span class="upload-zone-hint">Opens camera or photo library</span>
+      </label>
+      <div class="preview-grid" id="preview-grid"></div>
       <label>Your initial rating</label>
-      <div class="star-picker" id="nsp">${[1,2,3,4,5].map(i => `<button class="star-btn" data-v="${i}" onclick="setNewStar(${i})">★</button>`).join('')}</div>
+      <div class="star-picker" id="nsp">${[1,2,3,4,5].map(i=>`<button class="star-btn" data-v="${i}" onclick="setNewStar(${i})">★</button>`).join('')}</div>
       <label>Initial review</label>
       <textarea id="nr" rows="2" placeholder="Optional — your first impression..."></textarea>
-      <input type="text" id="nau" placeholder="Your name (optional)"/>
+      <input type="text" id="nau" placeholder="Your name (optional)" autocomplete="off"/>
       <div class="form-hint" style="margin-top:4px">* Required fields</div>
       <button class="btn btn-primary btn-full" id="add-btn" onclick="savePotty()">Add to map</button>
+      <div style="height:28px"></div>
     </div>`;
 }
+function setNewStar(val){addRating=val;document.querySelectorAll('#nsp .star-btn').forEach(b=>b.classList.toggle('on',+b.dataset.v<=val));}
+function cancelAdd(){pendingLatLng=null;pendingFiles=[];if(mob())setSheet('peek');showList();}
 
-function setNewStar(val) {
-  addRating = val;
-  document.querySelectorAll('#nsp .star-btn').forEach(b => b.classList.toggle('on', +b.dataset.v <= val));
+async function savePotty(){
+  const name=document.getElementById('nn').value.trim();
+  const addr=document.getElementById('na').value.trim();
+  const desc=document.getElementById('nd').value.trim()||'No description provided.';
+  const revText=document.getElementById('nr').value.trim()||'No comment.';
+  const author=document.getElementById('nau').value.trim()||'Anonymous';
+  const tags=[...document.querySelectorAll('.tag-check input:checked')].map(i=>i.value);
+  if(!name||!addr){alert('Name and address are required!');return;}
+  const btn=document.getElementById('add-btn');btn.disabled=true;btn.textContent=pendingFiles.length?'Saving & uploading...':'Saving...';
+  try{
+    const p=await createPotty({name,addr,desc,tags,lat:pendingLatLng.lat,lng:pendingLatLng.lng});
+    if(addRating>0){const rev=await createReview(p.id,{rating:addRating,text:revText,author});p.reviews.push(rev);}
+    if(pendingFiles.length){const u=await uploadAll(pendingFiles,p.id);await saveImages(p.id,u);}
+    addMarker(p);pendingLatLng=null;addRating=0;pendingFiles=[];
+    selectPotty(p.id);if(mob())setSheet('half');
+  }catch(e){setSync('err','error');alert('Could not save:\n'+e.message);btn.disabled=false;btn.textContent='Add to map';}
 }
 
-function cancelAdd() { pendingLatLng = null; showList(); }
-
-async function savePotty() {
-  const name = document.getElementById('nn').value.trim();
-  const addr = document.getElementById('na').value.trim();
-  const desc = document.getElementById('nd').value.trim() || 'No description provided.';
-  const revText = document.getElementById('nr').value.trim() || 'No comment.';
-  const author = document.getElementById('nau').value.trim() || 'Anonymous';
-  const tags = [...document.querySelectorAll('.tag-check input:checked')].map(i => i.value);
-  if (!name || !addr) { alert('Name and address are required!'); return; }
-  const btn = document.getElementById('add-btn');
-  btn.disabled = true; btn.textContent = 'Saving...';
-  try {
-    const p = await createPotty({ name, addr, desc, tags, lat: pendingLatLng.lat, lng: pendingLatLng.lng });
-    if (addRating > 0) {
-      const rev = await createReview(p.id, { rating: addRating, text: revText, author });
-      p.reviews.push(rev);
-    }
-    addMarker(p);
-    pendingLatLng = null;
-    addRating = 0;
-    selectPotty(p.id);
-  } catch(e) {
-    setSync('err', 'error');
-    alert('Could not save:\n' + e.message);
-    btn.disabled = false; btn.textContent = 'Add to map';
-  }
-}
-
-window.addEventListener('load', () => {
-  initMap();
-  loadPotties().catch(e => {
-    setSync('err', 'offline');
-    document.getElementById('loading').innerHTML =
-      `<div style="text-align:center;padding:24px;font-size:12px;color:var(--red);font-family:'DM Mono',monospace;line-height:1.8">
-        Could not connect to Supabase.<br><br>
-        Check your URL and API key,<br>and make sure the SQL tables exist.<br><br>
-        <small>${e.message}</small>
-      </div>`;
+window.addEventListener('load',()=>{
+  buildFilters();initMap();
+  loadPotties().catch(e=>{
+    setSync('err','offline');
+    document.getElementById('loading').innerHTML=`<div style="text-align:center;padding:24px;font-size:12px;color:var(--red);font-family:'DM Mono',monospace;line-height:1.9">Could not connect to Supabase.<br><br>Check your URL and API key,<br>and make sure the tables exist.<br><br><small>${e.message}</small></div>`;
   });
 });
 </script>
