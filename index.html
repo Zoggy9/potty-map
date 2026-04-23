@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Potty Map 2.5🚽</title>
+<title>Potty Map v2.5🚽</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
@@ -101,6 +101,8 @@
   .tag-free { background: var(--green-light); color: var(--green-text); }
   .tag-keyed { background: var(--amber-light); color: var(--amber-text); }
   .tag-outdoors { background: #f3e8ff; color: #5b21b6; }
+  .tag-diaper { background: #fce7f3; color: #9d174d; }
+  .tag-neutral { background: #e0f2fe; color: #075985; }
 
   .back-btn { display: flex; align-items: center; gap: 7px; padding: 10px 14px; border-bottom: 1px solid var(--border); cursor: pointer; font-size: 12px; color: var(--text2); flex-shrink: 0; background: var(--surface2); transition: background .12s; }
   .back-btn:hover { background: var(--bg); }
@@ -196,6 +198,8 @@
       <button class="filter-btn" onclick="setFilter('3',this)">★ 3+</button>
       <button class="filter-btn" onclick="setFilter('ada',this)">♿ ADA</button>
       <button class="filter-btn" onclick="setFilter('free',this)">Free</button>
+      <button class="filter-btn" onclick="setFilter('diaper',this)">👶 Diaper</button>
+      <button class="filter-btn" onclick="setFilter('neutral',this)">⚧ Neutral</button>
     </div>
     <div id="panel"></div>
   </div>
@@ -211,10 +215,12 @@ const SUPABASE_URL = 'https://mqfwaehuvtcajqcasrdw.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1xZndhZWh1dnRjYWpxY2FzcmR3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4OTY5MTUsImV4cCI6MjA5MjQ3MjkxNX0.cLu_OS4h6U5YWot28vqT7tYlvJu6UcW2f1oeWwXHVTQ';
 
 const TAG_DEFS = [
-  { id: 'ada',      label: '♿ ADA accessible', cls: 'tag-ada' },
-  { id: 'free',     label: '🆓 Free to use',    cls: 'tag-free' },
-  { id: 'keyed',    label: '🔑 Key required',   cls: 'tag-keyed' },
-  { id: 'outdoors', label: '🌿 Outdoors',        cls: 'tag-outdoors' },
+  { id: 'ada',      label: '♿ ADA accessible',     cls: 'tag-ada' },
+  { id: 'free',     label: '🆓 Free to use',        cls: 'tag-free' },
+  { id: 'keyed',    label: '🔑 Key required',       cls: 'tag-keyed' },
+  { id: 'outdoors', label: '🌿 Outdoors',            cls: 'tag-outdoors' },
+  { id: 'diaper',   label: '👶 Diaper changing',    cls: 'tag-diaper' },
+  { id: 'neutral',  label: '⚧ Gender neutral',     cls: 'tag-neutral' },
 ];
 
 let map, markers = {}, potties = [], selectedId = null, pendingLatLng = null, addRating = 0, currentFilter = 'all';
@@ -326,6 +332,8 @@ function filteredPotties() {
     if (currentFilter === 'all') return true;
     if (currentFilter === 'ada') return (p.tags || []).includes('ada');
     if (currentFilter === 'free') return (p.tags || []).includes('free');
+    if (currentFilter === 'diaper') return (p.tags || []).includes('diaper');
+    if (currentFilter === 'neutral') return (p.tags || []).includes('neutral');
     const a = avg(p.reviews);
     if (currentFilter === '5') return a >= 4.5;
     if (currentFilter === '4') return a >= 3.5;
