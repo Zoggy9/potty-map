@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Potty Map 2.0🚽</title>
+<title>Potty Map 🚽</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
@@ -58,125 +58,37 @@
     z-index: 1000;
   }
 
-  .logo {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--text);
-    letter-spacing: -0.3px;
-  }
+  .logo { display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 600; color: var(--text); letter-spacing: -0.3px; }
+  .logo-icon { width: 30px; height: 30px; background: var(--green); border-radius: var(--radius); display: flex; align-items: center; justify-content: center; font-size: 15px; }
+  .header-hint { font-size: 12px; color: var(--text3); font-family: 'DM Mono', monospace; }
+  .header-right { display: flex; align-items: center; gap: 10px; }
+  .header-count { font-size: 12px; color: var(--text2); background: var(--surface2); border: 1px solid var(--border); border-radius: 20px; padding: 3px 10px; font-family: 'DM Mono', monospace; }
 
-  .logo-icon {
-    width: 30px;
-    height: 30px;
-    background: var(--green);
-    border-radius: var(--radius);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 15px;
-  }
+  .sync-badge { font-size: 11px; font-family: 'DM Mono', monospace; padding: 3px 10px; border-radius: 20px; border: 1px solid var(--border); display: flex; align-items: center; gap: 5px; transition: all .3s; }
+  .sync-badge.syncing { background: var(--amber-light); color: var(--amber-text); border-color: var(--amber); }
+  .sync-badge.ok { background: var(--green-light); color: var(--green-text); border-color: var(--green); }
+  .sync-badge.err { background: var(--red-light); color: var(--red); border-color: var(--red); }
+  .sync-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+  .syncing .sync-dot { animation: pulse 1s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
 
-  .header-hint {
-    font-size: 12px;
-    color: var(--text3);
-    font-family: 'DM Mono', monospace;
-  }
+  #layout { display: flex; flex: 1; overflow: hidden; position: relative; }
+  #map { flex: 1; min-width: 0; }
 
-  .header-count {
-    font-size: 12px;
-    color: var(--text2);
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    padding: 3px 10px;
-    font-family: 'DM Mono', monospace;
-  }
+  #sidebar { width: 320px; flex-shrink: 0; background: var(--surface); border-left: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; }
 
-  #layout {
-    display: flex;
-    flex: 1;
-    overflow: hidden;
-  }
-
-  #map {
-    flex: 1;
-    min-width: 0;
-  }
-
-  #sidebar {
-    width: 320px;
-    flex-shrink: 0;
-    background: var(--surface);
-    border-left: 1px solid var(--border);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  }
-
-  .filter-bar {
-    padding: 10px 14px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
-    flex-shrink: 0;
-    background: var(--surface2);
-  }
-
-  .filter-btn {
-    font-size: 11px;
-    font-family: 'DM Mono', monospace;
-    padding: 4px 10px;
-    border-radius: 20px;
-    border: 1px solid var(--border2);
-    background: var(--surface);
-    color: var(--text2);
-    cursor: pointer;
-    transition: all .15s;
-    white-space: nowrap;
-  }
-
+  .filter-bar { padding: 10px 14px; border-bottom: 1px solid var(--border); display: flex; gap: 6px; flex-wrap: wrap; flex-shrink: 0; background: var(--surface2); }
+  .filter-btn { font-size: 11px; font-family: 'DM Mono', monospace; padding: 4px 10px; border-radius: 20px; border: 1px solid var(--border2); background: var(--surface); color: var(--text2); cursor: pointer; transition: all .15s; white-space: nowrap; }
   .filter-btn:hover { background: var(--bg); }
   .filter-btn.active { background: var(--green); color: #fff; border-color: var(--green); }
 
-  #panel {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  }
-
+  #panel { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
   .s-scroll { flex: 1; overflow-y: auto; }
 
-  .list-item {
-    padding: 13px 15px;
-    border-bottom: 1px solid var(--border);
-    cursor: pointer;
-    transition: background .12s;
-    display: flex;
-    gap: 10px;
-    align-items: flex-start;
-  }
-
+  .list-item { padding: 13px 15px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background .12s; display: flex; gap: 10px; align-items: flex-start; }
   .list-item:hover { background: var(--surface2); }
-  .list-item.selected { background: var(--green-light); border-left: 3px solid var(--green); }
 
-  .li-icon {
-    width: 34px;
-    height: 34px;
-    border-radius: var(--radius);
-    background: var(--green-light);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px;
-    flex-shrink: 0;
-    margin-top: 1px;
-  }
-
+  .li-icon { width: 34px; height: 34px; border-radius: var(--radius); background: var(--green-light); display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; margin-top: 1px; }
   .li-content { flex: 1; min-width: 0; }
   .li-name { font-size: 13px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .li-addr { font-size: 11px; color: var(--blue); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -184,238 +96,73 @@
   .li-stars { font-size: 11px; color: var(--star); }
   .li-count { font-size: 10px; color: var(--text3); font-family: 'DM Mono', monospace; }
 
-  .tag {
-    display: inline-flex;
-    align-items: center;
-    gap: 3px;
-    font-size: 10px;
-    padding: 2px 7px;
-    border-radius: 20px;
-    font-weight: 500;
-    white-space: nowrap;
-  }
-
+  .tag { display: inline-flex; align-items: center; gap: 3px; font-size: 10px; padding: 2px 7px; border-radius: 20px; font-weight: 500; white-space: nowrap; }
   .tag-ada { background: var(--blue-light); color: var(--blue-text); }
   .tag-free { background: var(--green-light); color: var(--green-text); }
   .tag-keyed { background: var(--amber-light); color: var(--amber-text); }
   .tag-outdoors { background: #f3e8ff; color: #5b21b6; }
 
-  .back-btn {
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    padding: 10px 14px;
-    border-bottom: 1px solid var(--border);
-    cursor: pointer;
-    font-size: 12px;
-    color: var(--text2);
-    flex-shrink: 0;
-    background: var(--surface2);
-    transition: background .12s;
-  }
-
+  .back-btn { display: flex; align-items: center; gap: 7px; padding: 10px 14px; border-bottom: 1px solid var(--border); cursor: pointer; font-size: 12px; color: var(--text2); flex-shrink: 0; background: var(--surface2); transition: background .12s; }
   .back-btn:hover { background: var(--bg); }
 
   .detail-body { flex: 1; overflow-y: auto; padding: 16px; }
-
   .d-name { font-size: 16px; font-weight: 600; color: var(--text); margin-bottom: 4px; line-height: 1.3; }
-
-  .d-addr {
-    font-size: 12px;
-    color: var(--blue);
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    margin-bottom: 10px;
-    font-family: 'DM Mono', monospace;
-  }
-
+  .d-addr { font-size: 12px; color: var(--blue); text-decoration: none; display: flex; align-items: center; gap: 4px; margin-bottom: 10px; font-family: 'DM Mono', monospace; }
   .d-addr:hover { text-decoration: underline; }
-
   .d-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 12px; }
-
   .d-desc { font-size: 12px; color: var(--text2); line-height: 1.7; margin-bottom: 14px; }
 
-  .avg-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 12px;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    margin-bottom: 14px;
-  }
-
+  .avg-row { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-lg); margin-bottom: 14px; }
   .avg-big { font-size: 22px; font-weight: 600; color: var(--text); font-family: 'DM Mono', monospace; }
   .avg-stars-big { font-size: 16px; color: var(--star); }
   .avg-label { font-size: 11px; color: var(--text3); margin-top: 1px; }
 
   .rev-title { font-size: 11px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: .08em; font-family: 'DM Mono', monospace; margin-bottom: 8px; }
-
-  .rev-item {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 10px 12px;
-    margin-bottom: 8px;
-  }
-
+  .rev-item { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 12px; margin-bottom: 8px; }
   .rev-stars { font-size: 12px; color: var(--star); margin-bottom: 3px; }
   .rev-text { font-size: 12px; color: var(--text2); line-height: 1.6; }
   .rev-author { font-size: 10px; color: var(--text3); margin-top: 5px; font-family: 'DM Mono', monospace; }
 
-  .add-rev-section {
-    border-top: 1px solid var(--border);
-    padding: 13px 15px;
-    flex-shrink: 0;
-    background: var(--surface);
-  }
-
+  .add-rev-section { border-top: 1px solid var(--border); padding: 13px 15px; flex-shrink: 0; background: var(--surface); }
   .add-rev-title { font-size: 12px; font-weight: 500; color: var(--text); margin-bottom: 8px; }
 
   .star-picker { display: flex; gap: 2px; margin-bottom: 8px; }
-
-  .star-btn {
-    font-size: 22px;
-    cursor: pointer;
-    color: var(--border2);
-    border: none;
-    background: none;
-    padding: 0;
-    line-height: 1;
-    transition: color .1s, transform .1s;
-  }
-
+  .star-btn { font-size: 22px; cursor: pointer; color: var(--border2); border: none; background: none; padding: 0; line-height: 1; transition: color .1s, transform .1s; }
   .star-btn:hover, .star-btn.on { color: var(--star); }
   .star-btn:hover { transform: scale(1.15); }
 
-  textarea, input[type=text], select {
-    width: 100%;
-    font-size: 12px;
-    padding: 8px 10px;
-    border-radius: var(--radius);
-    border: 1px solid var(--border2);
-    background: var(--surface2);
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
-    outline: none;
-    transition: border-color .15s;
-    margin-bottom: 7px;
-  }
-
-  textarea:focus, input[type=text]:focus, select:focus { border-color: var(--green); }
+  textarea, input[type=text] { width: 100%; font-size: 12px; padding: 8px 10px; border-radius: var(--radius); border: 1px solid var(--border2); background: var(--surface2); color: var(--text); font-family: 'DM Sans', sans-serif; outline: none; transition: border-color .15s; margin-bottom: 7px; }
+  textarea:focus, input[type=text]:focus { border-color: var(--green); }
   textarea { resize: none; }
 
-  .btn {
-    font-size: 12px;
-    font-weight: 500;
-    padding: 8px 14px;
-    border-radius: var(--radius);
-    border: 1px solid var(--border2);
-    background: transparent;
-    color: var(--text);
-    cursor: pointer;
-    transition: all .15s;
-    font-family: 'DM Sans', sans-serif;
-  }
-
+  .btn { font-size: 12px; font-weight: 500; padding: 8px 14px; border-radius: var(--radius); border: 1px solid var(--border2); background: transparent; color: var(--text); cursor: pointer; transition: all .15s; font-family: 'DM Sans', sans-serif; }
   .btn:hover { background: var(--surface2); }
-
-  .btn-primary {
-    background: var(--green);
-    color: #fff;
-    border-color: var(--green);
-  }
-
-  .btn-primary:hover { background: var(--green-text); border-color: var(--green-text); }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+  .btn-primary { background: var(--green); color: #fff; border-color: var(--green); }
+  .btn-primary:hover:not(:disabled) { background: var(--green-text); border-color: var(--green-text); }
   .btn-full { width: 100%; }
-
-  .btn-danger {
-    background: transparent;
-    color: var(--red);
-    border-color: var(--border2);
-    font-size: 11px;
-    padding: 5px 10px;
-  }
-
+  .btn-danger { background: transparent; color: var(--red); border-color: var(--border2); font-size: 11px; padding: 5px 10px; }
   .btn-danger:hover { background: var(--red-light); border-color: var(--red); }
 
-  .form-section { padding: 14px 15px; }
+  .form-section { padding: 14px 15px; overflow-y: auto; flex: 1; }
   .form-section label { display: block; font-size: 11px; color: var(--text2); margin-bottom: 3px; margin-top: 10px; font-weight: 500; }
-  .form-section label:first-of-type { margin-top: 0; }
 
   .tag-checkboxes { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 7px; }
-
-  .tag-check {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    font-size: 11px;
-    padding: 4px 10px;
-    border-radius: 20px;
-    border: 1px solid var(--border2);
-    background: var(--surface2);
-    cursor: pointer;
-    transition: all .15s;
-    user-select: none;
-  }
-
+  .tag-check { display: flex; align-items: center; gap: 4px; font-size: 11px; padding: 4px 10px; border-radius: 20px; border: 1px solid var(--border2); background: var(--surface2); cursor: pointer; transition: all .15s; user-select: none; }
   .tag-check input { display: none; }
   .tag-check:has(input:checked) { background: var(--green); color: #fff; border-color: var(--green); }
 
-  .empty {
-    padding: 32px 16px;
-    text-align: center;
-    font-size: 12px;
-    color: var(--text3);
-    line-height: 1.8;
-  }
-
+  .empty { padding: 32px 16px; text-align: center; font-size: 12px; color: var(--text3); line-height: 1.8; }
   .empty-icon { font-size: 28px; display: block; margin-bottom: 8px; }
-
   .form-hint { font-size: 10px; color: var(--text3); margin-bottom: 12px; font-family: 'DM Mono', monospace; }
-
-  .coords-badge {
-    font-size: 10px;
-    color: var(--text3);
-    font-family: 'DM Mono', monospace;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 4px 8px;
-    margin-bottom: 12px;
-    display: inline-block;
-  }
-
+  .coords-badge { font-size: 10px; color: var(--text3); font-family: 'DM Mono', monospace; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: 4px 8px; margin-bottom: 12px; display: inline-block; }
   .detail-actions { display: flex; justify-content: flex-end; margin-bottom: 14px; }
 
   .leaflet-container { cursor: crosshair !important; }
 
-  .custom-marker {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .marker-wrap {
-    width: 30px;
-    height: 36px;
-    border-radius: 50% 50% 50% 0;
-    transform: rotate(-45deg);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 2px solid rgba(255,255,255,0.9);
-    transition: transform .2s;
-  }
-
-  .marker-emoji {
-    transform: rotate(45deg);
-    font-size: 14px;
-    line-height: 1;
-  }
+  .loading-overlay { position: absolute; inset: 0; background: rgba(245,242,235,0.9); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; z-index: 9999; font-size: 13px; color: var(--text2); font-family: 'DM Mono', monospace; }
+  .spinner { width: 24px; height: 24px; border: 2px solid var(--border2); border-top-color: var(--green); border-radius: 50%; animation: spin .7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
 
   ::-webkit-scrollbar { width: 5px; }
   ::-webkit-scrollbar-track { background: transparent; }
@@ -430,95 +177,147 @@
     Potty Map
   </div>
   <span class="header-hint">dbl-click map to add</span>
-  <span class="header-count" id="hcount">0 restrooms</span>
+  <div class="header-right">
+    <div class="sync-badge ok" id="sync-badge">
+      <div class="sync-dot"></div>
+      <span id="sync-label">live</span>
+    </div>
+    <span class="header-count" id="hcount">loading...</span>
+  </div>
 </header>
 
 <div id="layout">
   <div id="map"></div>
   <div id="sidebar">
     <div class="filter-bar">
-      <button class="filter-btn active" data-filter="all" onclick="setFilter('all',this)">All</button>
-      <button class="filter-btn" data-filter="5" onclick="setFilter('5',this)">★ 5 only</button>
-      <button class="filter-btn" data-filter="4" onclick="setFilter('4',this)">★ 4+</button>
-      <button class="filter-btn" data-filter="3" onclick="setFilter('3',this)">★ 3+</button>
-      <button class="filter-btn" data-filter="ada" onclick="setFilter('ada',this)">♿ ADA</button>
-      <button class="filter-btn" data-filter="free" onclick="setFilter('free',this)">Free</button>
+      <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
+      <button class="filter-btn" onclick="setFilter('5',this)">★ 5 only</button>
+      <button class="filter-btn" onclick="setFilter('4',this)">★ 4+</button>
+      <button class="filter-btn" onclick="setFilter('3',this)">★ 3+</button>
+      <button class="filter-btn" onclick="setFilter('ada',this)">♿ ADA</button>
+      <button class="filter-btn" onclick="setFilter('free',this)">Free</button>
     </div>
     <div id="panel"></div>
+  </div>
+  <div class="loading-overlay" id="loading">
+    <div class="spinner"></div>
+    <span>Connecting to database...</span>
   </div>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-const STORAGE_KEY = 'pottymap_v1';
-let map, markers = {}, selectedId = null, pendingLatLng = null, addRating = 0, currentFilter = 'all';
+const SUPABASE_URL = 'https://mqfwaehuvtcajqcasrdw.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1xZndhZWh1dnRjYWpxY2FzcmR3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4OTY5MTUsImV4cCI6MjA5MjQ3MjkxNX0.cLu_OS4h6U5YWot28vqT7tYlvJu6UcW2f1oeWwXHVTQ';
 
 const TAG_DEFS = [
-  { id: 'ada', label: '♿ ADA accessible', cls: 'tag-ada' },
-  { id: 'free', label: '🆓 Free to use', cls: 'tag-free' },
-  { id: 'keyed', label: '🔑 Key required', cls: 'tag-keyed' },
-  { id: 'outdoors', label: '🌿 Outdoors', cls: 'tag-outdoors' },
+  { id: 'ada',      label: '♿ ADA accessible', cls: 'tag-ada' },
+  { id: 'free',     label: '🆓 Free to use',    cls: 'tag-free' },
+  { id: 'keyed',    label: '🔑 Key required',   cls: 'tag-keyed' },
+  { id: 'outdoors', label: '🌿 Outdoors',        cls: 'tag-outdoors' },
 ];
 
-function loadData() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return JSON.parse(raw);
-  } catch(e) {}
-  return {
-    nextId: 4,
-    potties: [
-      { id: 1, name: "Millennium Park Restroom", desc: "Clean, well-maintained facility near the Bean. Regularly serviced throughout the day.", addr: "201 E Randolph St, Chicago", lat: 41.8827, lng: -87.6233, tags: ['ada','free'], reviews: [
-        { rating: 5, text: "Spotless and always well-stocked!", author: "ChicagoJogger" },
-        { rating: 4, text: "Good condition, busy on weekends.", author: "Visitor2024" },
-        { rating: 3, text: "Could use more attention during peak hours.", author: "TruthTeller" }
-      ]},
-      { id: 2, name: "Grant Park Facilities", desc: "Large multi-stall facility. Open April through October. Covered outdoor structure.", addr: "337 E Randolph St, Chicago", lat: 41.8763, lng: -87.6185, tags: ['free','outdoors'], reviews: [
-        { rating: 4, text: "Great for a park bathroom!", author: "Marathoner" },
-        { rating: 5, text: "Always clean on my morning runs.", author: "LakeRunner" }
-      ]},
-      { id: 3, name: "Navy Pier Restroom", desc: "Large indoor facility. Multiple stalls, very clean, year-round access. Family-friendly.", addr: "600 E Grand Ave, Chicago", lat: 41.8919, lng: -87.6051, tags: ['ada','free'], reviews: [
-        { rating: 5, text: "Best public restrooms in the city!", author: "NavyPierFan" },
-        { rating: 4, text: "Clean and spacious.", author: "TouristMom" }
-      ]}
-    ]
+let map, markers = {}, potties = [], selectedId = null, pendingLatLng = null, addRating = 0, currentFilter = 'all';
+
+async function sb(path, opts = {}) {
+  const headers = {
+    'apikey': SUPABASE_KEY,
+    'Authorization': `Bearer ${SUPABASE_KEY}`,
+    'Content-Type': 'application/json',
+    'Prefer': 'return=representation',
+    ...(opts.extraHeaders || {})
   };
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+    method: opts.method || 'GET',
+    headers,
+    body: opts.body || undefined
+  });
+  if (!res.ok) throw new Error(await res.text());
+  const text = await res.text();
+  return text ? JSON.parse(text) : null;
 }
 
-let store = loadData();
-let potties = store.potties;
-let nextId = store.nextId;
+function setSync(state, label) {
+  const el = document.getElementById('sync-badge');
+  el.className = 'sync-badge ' + state;
+  document.getElementById('sync-label').textContent = label;
+}
 
-function save() {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ nextId, potties })); } catch(e) {}
-  document.getElementById('hcount').textContent = potties.length + ' restroom' + (potties.length !== 1 ? 's' : '');
+function updateCount() {
+  const el = document.getElementById('hcount');
+  el.textContent = potties.length + ' restroom' + (potties.length !== 1 ? 's' : '');
+}
+
+async function loadPotties() {
+  setSync('syncing', 'loading...');
+  const rows = await sb('potties?select=*,reviews(*)&order=created_at.asc');
+  potties = (rows || []).map(r => ({
+    ...r,
+    tags: r.tags || [],
+    reviews: (r.reviews || [])
+  }));
+  potties.forEach(p => { if (!markers[p.id]) addMarker(p); });
+  setSync('ok', 'live');
+  updateCount();
+  document.getElementById('loading').style.display = 'none';
+  showList();
+}
+
+async function createPotty(data) {
+  setSync('syncing', 'saving...');
+  const rows = await sb('potties', {
+    method: 'POST',
+    body: JSON.stringify({ name: data.name, description: data.desc, address: data.addr, lat: data.lat, lng: data.lng, tags: data.tags })
+  });
+  const p = { ...rows[0], tags: rows[0].tags || [], reviews: [] };
+  potties.push(p);
+  setSync('ok', 'saved');
+  updateCount();
+  return p;
+}
+
+async function createReview(pottyId, data) {
+  setSync('syncing', 'saving...');
+  const rows = await sb('reviews', {
+    method: 'POST',
+    body: JSON.stringify({ potty_id: pottyId, rating: data.rating, text: data.text, author: data.author })
+  });
+  setSync('ok', 'saved');
+  return rows[0];
+}
+
+async function deletePottyFromDB(id) {
+  setSync('syncing', 'deleting...');
+  await sb(`potties?id=eq.${id}`, {
+    method: 'DELETE',
+    extraHeaders: { 'Prefer': 'return=minimal' }
+  });
+  setSync('ok', 'live');
 }
 
 function avg(reviews) {
-  if (!reviews.length) return 0;
+  if (!reviews || !reviews.length) return 0;
   return reviews.reduce((a, b) => a + b.rating, 0) / reviews.length;
 }
 
-function starsHtml(rating) {
+function starsHtml(n) {
   let s = '';
-  for (let i = 1; i <= 5; i++) s += i <= Math.round(rating) ? '★' : '☆';
+  for (let i = 1; i <= 5; i++) s += i <= Math.round(n) ? '★' : '☆';
   return s;
 }
 
 function tagsHtml(tags) {
   return (tags || []).map(t => {
-    const def = TAG_DEFS.find(d => d.id === t);
-    return def ? `<span class="tag ${def.cls}">${def.label}</span>` : '';
+    const d = TAG_DEFS.find(x => x.id === t);
+    return d ? `<span class="tag ${d.cls}">${d.label}</span>` : '';
   }).join('');
 }
 
 function makeIcon(active) {
   return L.divIcon({
     className: '',
-    html: `<div class="custom-marker"><div class="marker-wrap" style="background:${active ? '#1d4e89' : '#2d6a4f'}"><span class="marker-emoji">🚽</span></div></div>`,
-    iconSize: [30, 36],
-    iconAnchor: [15, 36],
-    popupAnchor: [0, -40]
+    html: `<div style="display:flex;align-items:center;justify-content:center"><div style="width:30px;height:36px;background:${active ? '#1d4e89' : '#2d6a4f'};border-radius:50% 50% 50% 0;transform:rotate(-45deg);display:flex;align-items:center;justify-content:center;border:2px solid rgba(255,255,255,0.9)"><span style="transform:rotate(45deg);font-size:14px;line-height:1">🚽</span></div></div>`,
+    iconSize: [30, 36], iconAnchor: [15, 36], popupAnchor: [0, -40]
   });
 }
 
@@ -549,9 +348,6 @@ function initMap() {
     maxZoom: 19
   }).addTo(map);
   map.on('dblclick', e => { pendingLatLng = e.latlng; showAddForm(); });
-  potties.forEach(addMarker);
-  save();
-  showList();
 }
 
 function addMarker(p) {
@@ -589,11 +385,11 @@ function showList() {
   panel.innerHTML = `<div class="s-scroll">${fp.map(p => {
     const a = avg(p.reviews);
     const tagBadges = (p.tags || []).map(t => { const d = TAG_DEFS.find(x => x.id === t); return d ? `<span class="tag ${d.cls}">${d.label}</span>` : ''; }).join('');
-    return `<div class="list-item${p.id === selectedId ? ' selected' : ''}" onclick="selectPotty(${p.id})">
+    return `<div class="list-item" onclick="selectPotty(${p.id})">
       <div class="li-icon">🚽</div>
       <div class="li-content">
         <div class="li-name">${p.name}</div>
-        <div class="li-addr">📍 ${p.addr}</div>
+        <div class="li-addr">📍 ${p.address}</div>
         <div class="li-meta">
           ${a ? `<span class="li-stars">${starsHtml(a)}</span><span class="li-count">${a.toFixed(1)} (${p.reviews.length})</span>` : '<span class="li-count">No ratings</span>'}
           ${tagBadges}
@@ -616,21 +412,11 @@ function showDetail(id) {
     <div class="back-btn" onclick="showList()">← Back to list</div>
     <div class="detail-body">
       <div class="d-name">${p.name}</div>
-      <a class="d-addr" href="https://maps.google.com?q=${encodeURIComponent(p.addr)}" target="_blank">📍 ${p.addr}</a>
+      <a class="d-addr" href="https://maps.google.com?q=${encodeURIComponent(p.address)}" target="_blank">📍 ${p.address}</a>
       <div class="d-tags">${tagsHtml(p.tags)}</div>
-      <div class="d-desc">${p.desc}</div>
-      ${a ? `<div class="avg-row">
-        <div>
-          <div class="avg-big">${a.toFixed(1)}</div>
-          <div class="avg-label">${p.reviews.length} review${p.reviews.length !== 1 ? 's' : ''}</div>
-        </div>
-        <div>
-          <div class="avg-stars-big">${starsHtml(a)}</div>
-        </div>
-      </div>` : ''}
-      <div class="detail-actions">
-        <button class="btn btn-danger" onclick="deletePotty(${id})">🗑 Delete</button>
-      </div>
+      <div class="d-desc">${p.description || ''}</div>
+      ${a ? `<div class="avg-row"><div><div class="avg-big">${a.toFixed(1)}</div><div class="avg-label">${p.reviews.length} review${p.reviews.length !== 1 ? 's' : ''}</div></div><div><div class="avg-stars-big">${starsHtml(a)}</div></div></div>` : ''}
+      <div class="detail-actions"><button class="btn btn-danger" onclick="deletePotty(${id})">🗑 Delete</button></div>
       <div class="rev-title">Reviews</div>
       ${revHtml}
     </div>
@@ -639,7 +425,7 @@ function showDetail(id) {
       <div class="star-picker" id="sp">${[1,2,3,4,5].map(i => `<button class="star-btn" data-v="${i}" onclick="setStar(${id},${i})">★</button>`).join('')}</div>
       <textarea id="rt" rows="2" placeholder="Share your experience..."></textarea>
       <input type="text" id="ra" placeholder="Your name (optional)"/>
-      <button class="btn btn-primary btn-full" onclick="submitReview(${id})">Submit review</button>
+      <button class="btn btn-primary btn-full" id="rev-btn" onclick="submitReview(${id})">Submit review</button>
     </div>`;
 }
 
@@ -648,23 +434,38 @@ function setStar(id, val) {
   document.querySelectorAll('#sp .star-btn').forEach(b => b.classList.toggle('on', +b.dataset.v <= val));
 }
 
-function submitReview(id) {
+async function submitReview(id) {
   if (!addRating) { alert('Pick a star rating first!'); return; }
-  const text = (document.getElementById('rt').value.trim()) || 'No comment.';
-  const author = (document.getElementById('ra').value.trim()) || 'Anonymous';
-  const p = potties.find(x => x.id === id);
-  p.reviews.push({ rating: addRating, text, author });
-  save();
-  showDetail(id);
+  const text = document.getElementById('rt').value.trim() || 'No comment.';
+  const author = document.getElementById('ra').value.trim() || 'Anonymous';
+  const btn = document.getElementById('rev-btn');
+  btn.disabled = true; btn.textContent = 'Submitting...';
+  try {
+    const rev = await createReview(id, { rating: addRating, text, author });
+    const p = potties.find(x => x.id === id);
+    p.reviews.push(rev);
+    addRating = 0;
+    showDetail(id);
+  } catch(e) {
+    setSync('err', 'error');
+    alert('Could not save review:\n' + e.message);
+    btn.disabled = false; btn.textContent = 'Submit review';
+  }
 }
 
-function deletePotty(id) {
-  if (!confirm('Remove this restroom from the map?')) return;
-  potties = potties.filter(x => x.id !== id);
-  removeMarker(id);
-  selectedId = null;
-  save();
-  showList();
+async function deletePotty(id) {
+  if (!confirm('Remove this restroom for all visitors?')) return;
+  try {
+    await deletePottyFromDB(id);
+    potties = potties.filter(x => x.id !== id);
+    removeMarker(id);
+    selectedId = null;
+    updateCount();
+    showList();
+  } catch(e) {
+    setSync('err', 'error');
+    alert('Could not delete:\n' + e.message);
+  }
 }
 
 function showAddForm() {
@@ -673,7 +474,7 @@ function showAddForm() {
   selectedId = null;
   document.getElementById('panel').innerHTML = `
     <div class="back-btn" onclick="cancelAdd()">← Cancel</div>
-    <div class="form-section s-scroll">
+    <div class="form-section">
       <div style="font-size:14px;font-weight:600;margin-bottom:6px">Add a restroom</div>
       <div class="coords-badge">📍 ${pendingLatLng.lat.toFixed(5)}, ${pendingLatLng.lng.toFixed(5)}</div>
       <label>Name *</label>
@@ -683,16 +484,14 @@ function showAddForm() {
       <label>Description</label>
       <textarea id="nd" rows="3" placeholder="Stalls, cleanliness, hours, accessibility notes..."></textarea>
       <label>Features</label>
-      <div class="tag-checkboxes">
-        ${TAG_DEFS.map(t => `<label class="tag-check"><input type="checkbox" value="${t.id}"/>${t.label}</label>`).join('')}
-      </div>
+      <div class="tag-checkboxes">${TAG_DEFS.map(t => `<label class="tag-check"><input type="checkbox" value="${t.id}"/>${t.label}</label>`).join('')}</div>
       <label>Your initial rating</label>
       <div class="star-picker" id="nsp">${[1,2,3,4,5].map(i => `<button class="star-btn" data-v="${i}" onclick="setNewStar(${i})">★</button>`).join('')}</div>
       <label>Initial review</label>
       <textarea id="nr" rows="2" placeholder="Optional — your first impression..."></textarea>
       <input type="text" id="nau" placeholder="Your name (optional)"/>
-      <div class="form-hint">* Required fields</div>
-      <button class="btn btn-primary btn-full" onclick="savePotty()">Add to map</button>
+      <div class="form-hint" style="margin-top:4px">* Required fields</div>
+      <button class="btn btn-primary btn-full" id="add-btn" onclick="savePotty()">Add to map</button>
     </div>`;
 }
 
@@ -701,29 +500,47 @@ function setNewStar(val) {
   document.querySelectorAll('#nsp .star-btn').forEach(b => b.classList.toggle('on', +b.dataset.v <= val));
 }
 
-function cancelAdd() {
-  pendingLatLng = null;
-  showList();
-}
+function cancelAdd() { pendingLatLng = null; showList(); }
 
-function savePotty() {
+async function savePotty() {
   const name = document.getElementById('nn').value.trim();
   const addr = document.getElementById('na').value.trim();
-  const desc = (document.getElementById('nd').value.trim()) || 'No description provided.';
-  const revText = (document.getElementById('nr').value.trim()) || 'No comment.';
-  const author = (document.getElementById('nau').value.trim()) || 'Anonymous';
+  const desc = document.getElementById('nd').value.trim() || 'No description provided.';
+  const revText = document.getElementById('nr').value.trim() || 'No comment.';
+  const author = document.getElementById('nau').value.trim() || 'Anonymous';
   const tags = [...document.querySelectorAll('.tag-check input:checked')].map(i => i.value);
   if (!name || !addr) { alert('Name and address are required!'); return; }
-  const reviews = addRating > 0 ? [{ rating: addRating, text: revText, author }] : [];
-  const p = { id: nextId++, name, desc, addr, lat: pendingLatLng.lat, lng: pendingLatLng.lng, tags, reviews };
-  potties.push(p);
-  addMarker(p);
-  pendingLatLng = null;
-  save();
-  selectPotty(p.id);
+  const btn = document.getElementById('add-btn');
+  btn.disabled = true; btn.textContent = 'Saving...';
+  try {
+    const p = await createPotty({ name, addr, desc, tags, lat: pendingLatLng.lat, lng: pendingLatLng.lng });
+    if (addRating > 0) {
+      const rev = await createReview(p.id, { rating: addRating, text: revText, author });
+      p.reviews.push(rev);
+    }
+    addMarker(p);
+    pendingLatLng = null;
+    addRating = 0;
+    selectPotty(p.id);
+  } catch(e) {
+    setSync('err', 'error');
+    alert('Could not save:\n' + e.message);
+    btn.disabled = false; btn.textContent = 'Add to map';
+  }
 }
 
-window.addEventListener('load', initMap);
+window.addEventListener('load', () => {
+  initMap();
+  loadPotties().catch(e => {
+    setSync('err', 'offline');
+    document.getElementById('loading').innerHTML =
+      `<div style="text-align:center;padding:24px;font-size:12px;color:var(--red);font-family:'DM Mono',monospace;line-height:1.8">
+        Could not connect to Supabase.<br><br>
+        Check your URL and API key,<br>and make sure the SQL tables exist.<br><br>
+        <small>${e.message}</small>
+      </div>`;
+  });
+});
 </script>
 </body>
 </html>
