@@ -357,9 +357,7 @@ function makeIcon(active){
 function initMap(){
   map=L.map('map',{zoomControl:true,doubleClickZoom:false,tap:false}).setView([41.882,-87.628],14);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    maxZoom: 19
-    noWrap: true
+    attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',maxZoom: 19
   }).addTo(map);
 
   // Desktop double-click
