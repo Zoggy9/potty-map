@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-<title>Potty Map 3.0</title>
+<title>Potty Map</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
@@ -355,9 +355,20 @@ function makeIcon(active){
 }
 
 function initMap(){
-  map=L.map('map',{zoomControl:true,doubleClickZoom:false,tap:false}).setView([41.882,-87.628],14);
+  const worldBounds = L.latLngBounds(L.latLng(-90, -180), L.latLng(90, 180));
+  map=L.map('map',{
+    zoomControl:true,
+    doubleClickZoom:false,
+    tap:false,
+    maxBounds: worldBounds,
+    maxBoundsViscosity: 1.0,
+    minZoom: 2,
+  }).setView([41.882,-87.628],14);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
-    attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',maxZoom: 19
+    attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    maxZoom:19,
+    noWrap: true,
+    bounds: worldBounds,
   }).addTo(map);
 
   // Desktop double-click
