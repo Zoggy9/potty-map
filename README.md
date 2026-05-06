@@ -1,6 +1,6 @@
 # 🚽 Potty Map
 
-A fun, fully client-side restroom finder built with Leaflet.js and OpenStreetMap. No backend required — runs entirely in your browser.
+A fun restroom finder built with Leaflet.js and OpenStreetMap.
 
 ## Features
 
@@ -28,10 +28,12 @@ python3 -m http.server
 
 ### Deploy to GitHub Pages
 
-1. Push this repo to GitHub
+1. Fork this repo
 2. Go to **Settings → Pages**
 3. Set source to `main` branch, `/ (root)` folder
 4. Your map will be live at `https://yourusername.github.io/your-repo-name`
+
+**The website (with updates etc.) can currently also be found at [this link](https://potty-map-claude.vercel.app)**
 
 ## Project Structure
 
