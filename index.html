@@ -8,6 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@[VERSION]/dist/L.Control.Locate.min.css" />
+<script src="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@[VERSION]/dist/L.Control.Locate.min.js" charset="utf-8"></script>
 <style>
 :root{
   --bg:#f5f2eb;--surface:#fffef9;--surface2:#f0ede6;
@@ -214,9 +216,6 @@ textarea{resize:none;}
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-import "leaflet.locatecontrol"; // Import plugin
-import "leaflet.locatecontrol/dist/L.Control.Locate.min.css"; // Import styles
-import L from "leaflet"; // Import L from leaflet to start using the plugin
 
 const SB_URL='https://mqfwaehuvtcajqcasrdw.supabase.co';
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1xZndhZWh1dnRjYWpxY2FzcmR3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4OTY5MTUsImV4cCI6MjA5MjQ3MjkxNX0.cLu_OS4h6U5YWot28vqT7tYlvJu6UcW2f1oeWwXHVTQ';
