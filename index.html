@@ -372,7 +372,8 @@ function initMap(){
     noWrap:true,
     bounds:worldBounds,
   }).addTo(map);
-  L.control.locate().addTo(map);
+  let lc = L.control.locate().addTo(map);
+  lc.start();
 
   // Desktop double-click to add
   map.on('dblclick',e=>{if(mob())return;pendingLatLng=e.latlng;showAddForm();});
