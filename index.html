@@ -3,14 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-<<<<<<< HEAD
-<title>Potty Map 4.0</title>
-<link rel="manifest" href="manifest.json"/>
-<meta name="theme-color" content="#2d6a4f"/>
-<meta name="apple-mobile-web-app-capable" content="yes"/>
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
-<meta name="apple-mobile-web-app-title" content="Potty Map"/>
-<link rel="apple-touch-icon" href="icons/icon-192.png"/>
+<title>Potty Map</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
@@ -77,6 +70,11 @@ header{position:fixed;top:0;left:0;right:0;height:var(--hh);background:var(--sur
 .li-stars{font-size:12px;color:var(--star);}
 .li-count{font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;}
 
+.private-vers-btn {
+  padding: 5px 5px 5px 5px;
+  border: 2px solid black;
+}
+
 .tag{display:inline-flex;align-items:center;gap:3px;font-size:10px;padding:2px 7px;border-radius:20px;font-weight:500;white-space:nowrap;}
 .tag-ada{background:var(--blue-light);color:var(--blue-text);}
 .tag-free{background:var(--green-light);color:var(--green-text);}
@@ -115,7 +113,7 @@ textarea,input[type=text]{width:100%;font-size:16px;padding:10px 12px;border-rad
 textarea:focus,input[type=text]:focus{border-color:var(--green);}
 textarea{resize:none;}
 
-.btn{font-size:14px;font-weight:500;padding:11px 16px;border-radius:var(--r);border:1px solid var(--border2);background:transparent;color:var(--text);cursor:pointer;font-family:'DM Sans',sans-serif;min-height:44px;-webkit-appearance:none;appearance:none;}
+.btn{font-size:14px;font-weight:500;padding:11px 16px;border-radius:var(--r);border:1px solid var(--border2);background:transparent;color:var(--text);cursor:pointer;font-family:'DM Sans',sans-serif;min-height:44px;-webkit-appearance:none;}
 .btn:active{background:var(--surface2);}
 .btn:disabled{opacity:.5;}
 .btn-primary{background:var(--green);color:#fff;border-color:var(--green);}
@@ -188,6 +186,7 @@ textarea{resize:none;}
   <span class="header-hint">double-click map to add</span>
   <div class="header-right">
     <div class="sync-badge ok" id="sync-badge"><div class="sync-dot"></div><span id="sync-label">live</span></div>
+    <button class="private-vers-btn" onclick="window.location.href='https://potty-map-claude-frli6pywl-zoggy9s-projects.vercel.app/#'">Private Version</button>
   </div>
 </header>
 
@@ -288,7 +287,7 @@ function openLightbox(url){document.getElementById('lightbox-img').src=url;docum
 function closeLightbox(){document.getElementById('lightbox').classList.remove('open');}
 function renderPreviews(){
   const g=document.getElementById('preview-grid');if(!g)return;
-  g.innerHTML=pendingFiles.map((f,i)=>`<div class="preview-wrap"><img src="${URL.createObjectURL(f)}"/><button class="preview-remove" onclick="removePending(${i})">x</button></div>`).join('');
+  g.innerHTML=pendingFiles.map((f,i)=>`<div class="preview-wrap"><img src="${URL.createObjectURL(f)}"/><button class="preview-remove" onclick="removePending(${i})">×</button></div>`).join('');
 }
 function removePending(i){pendingFiles.splice(i,1);renderPreviews();}
 function handleFileInput(input){
@@ -362,26 +361,26 @@ function makeIcon(active){
 }
 
 function initMap(){
-  const worldBounds = L.latLngBounds(L.latLng(-90, -180), L.latLng(90, 180));
+  const worldBounds=L.latLngBounds(L.latLng(-90,-180),L.latLng(90,180));
   map=L.map('map',{
     zoomControl:true,
     doubleClickZoom:false,
     tap:false,
-    maxBounds: worldBounds,
-    maxBoundsViscosity: 1.0,
-    minZoom: 2,
+    maxBounds:worldBounds,
+    maxBoundsViscosity:1.0,
+    minZoom:2,
   }).setView([41.882,-87.628],14);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
     attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     maxZoom:19,
-    noWrap: true,
-    bounds: worldBounds,
+    noWrap:true,
+    bounds:worldBounds,
   }).addTo(map);
 
-  // Desktop double-click
+  // Desktop double-click to add
   map.on('dblclick',e=>{if(mob())return;pendingLatLng=e.latlng;showAddForm();});
 
-  // Mobile long-press
+  // Mobile long-press to add
   let pressTimer=null,pressLL=null;
   const ring=document.getElementById('press-ring');
   const mapEl=map.getContainer();
@@ -585,57 +584,6 @@ window.addEventListener('load',()=>{
     document.getElementById('loading').innerHTML=`<div style="text-align:center;padding:24px;font-size:12px;color:var(--red);font-family:'DM Mono',monospace;line-height:1.9">Could not connect to Supabase.<br><br>Check your URL and API key,<br>and make sure the tables exist.<br><br><small>${e.message}</small></div>`;
   });
 });
-</script>
-<!-- PWA install banner -->
-<div id="install-banner" style="display:none;position:fixed;bottom:0;left:0;right:0;background:var(--green);color:#fff;padding:14px 16px;z-index:9000;display:none;align-items:center;justify-content:space-between;gap:12px;font-size:13px;font-family:'DM Sans',sans-serif;">
-  <span>📲 Add Potty Map to your home screen!</span>
-  <div style="display:flex;gap:8px;flex-shrink:0">
-    <button onclick="installApp()" style="background:#fff;color:var(--green);border:none;border-radius:6px;padding:7px 14px;font-size:13px;font-weight:600;cursor:pointer;">Install</button>
-    <button onclick="dismissInstall()" style="background:rgba(255,255,255,.2);color:#fff;border:none;border-radius:6px;padding:7px 10px;font-size:13px;cursor:pointer;">✕</button>
-  </div>
-</div>
-
-<script>
-// Service worker
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').catch(err => console.warn('SW failed:', err));
-  });
-}
-
-// Install prompt
-let deferredPrompt = null;
-const banner = document.getElementById('install-banner');
-
-window.addEventListener('beforeinstallprompt', e => {
-  e.preventDefault();
-  deferredPrompt = e;
-  banner.style.display = 'flex';
-  // Push sheet and FAB up so they don't hide behind banner
-  const sheet = document.getElementById('sheet');
-  const fab = document.getElementById('fab');
-  if (sheet) sheet.style.bottom = '56px';
-  if (fab) fab.style.bottom = '192px';
-});
-
-function installApp() {
-  if (!deferredPrompt) return;
-  deferredPrompt.prompt();
-  deferredPrompt.userChoice.then(() => {
-    deferredPrompt = null;
-    dismissInstall();
-  });
-}
-
-function dismissInstall() {
-  banner.style.display = 'none';
-  const sheet = document.getElementById('sheet');
-  const fab = document.getElementById('fab');
-  if (sheet) sheet.style.bottom = '';
-  if (fab) fab.style.bottom = '';
-}
-
-window.addEventListener('appinstalled', () => dismissInstall());
 </script>
 </body>
 </html>
