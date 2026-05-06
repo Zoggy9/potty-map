@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-<title>Potty Map</title>
+<title>Potty Map 4.1</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
@@ -113,7 +113,7 @@ textarea,input[type=text]{width:100%;font-size:16px;padding:10px 12px;border-rad
 textarea:focus,input[type=text]:focus{border-color:var(--green);}
 textarea{resize:none;}
 
-.btn{font-size:14px;font-weight:500;padding:11px 16px;border-radius:var(--r);border:1px solid var(--border2);background:transparent;color:var(--text);cursor:pointer;font-family:'DM Sans',sans-serif;min-height:44px;-webkit-appearance:none;}
+.btn{font-size:14px;font-weight:500;padding:11px 16px;border-radius:var(--r);border:1px solid var(--border2);background:transparent;color:var(--text);cursor:pointer;font-family:'DM Sans',sans-serif;min-height:44px;-webkit-appearance:none;appearance:none;}
 .btn:active{background:var(--surface2);}
 .btn:disabled{opacity:.5;}
 .btn-primary{background:var(--green);color:#fff;border-color:var(--green);}
@@ -214,6 +214,10 @@ textarea{resize:none;}
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
+import "leaflet.locatecontrol"; // Import plugin
+import "leaflet.locatecontrol/dist/L.Control.Locate.min.css"; // Import styles
+import L from "leaflet"; // Import L from leaflet to start using the plugin
+
 const SB_URL='https://mqfwaehuvtcajqcasrdw.supabase.co';
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1xZndhZWh1dnRjYWpxY2FzcmR3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4OTY5MTUsImV4cCI6MjA5MjQ3MjkxNX0.cLu_OS4h6U5YWot28vqT7tYlvJu6UcW2f1oeWwXHVTQ';
 
@@ -376,6 +380,7 @@ function initMap(){
     noWrap:true,
     bounds:worldBounds,
   }).addTo(map);
+  L.control.locate({position: "topright"}).addTo(map);
 
   // Desktop double-click to add
   map.on('dblclick',e=>{if(mob())return;pendingLatLng=e.latlng;showAddForm();});
