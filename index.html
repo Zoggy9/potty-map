@@ -8,6 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@0.90.0/dist/L.Control.Locate.min.css"/>
+<script src="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@0.90.0/dist/L.Control.Locate.min.js" charset="utf-8"></script>
 <style>
 :root{
   --bg:#f5f2eb;--surface:#fffef9;--surface2:#f0ede6;
@@ -370,6 +372,7 @@ function initMap(){
     noWrap:true,
     bounds:worldBounds,
   }).addTo(map);
+  L.control.locate().addTo(map);
 
   // Desktop double-click to add
   map.on('dblclick',e=>{if(mob())return;pendingLatLng=e.latlng;showAddForm();});
