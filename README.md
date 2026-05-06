@@ -9,7 +9,7 @@ A fun restroom finder built with Leaflet.js and OpenStreetMap.
 - ⭐ **Ratings & reviews** — users can leave star ratings and written reviews; average rating updates live
 - 🏷️ **Accessibility tags** — mark locations as ADA accessible, free to use, key-required, or outdoors
 - 🔍 **Filter sidebar** — filter by star rating or accessibility features
-- 💾 **Persistent storage** — all data saved to `localStorage`, survives page refreshes
+- 💾 **Persistent storage** — all data saved to Supabase server-side, survives page refreshes
 - 🗑️ **Delete locations** — remove a pin with a confirmation prompt
 - 📬 **Address links** — clickable address opens Google Maps
 
