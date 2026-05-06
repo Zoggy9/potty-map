@@ -3,13 +3,11 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-<title>Potty Map 4.1</title>
+<title>Potty Map</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@[VERSION]/dist/L.Control.Locate.min.css" />
-<script src="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@[VERSION]/dist/L.Control.Locate.min.js" charset="utf-8"></script>
 <style>
 :root{
   --bg:#f5f2eb;--surface:#fffef9;--surface2:#f0ede6;
@@ -72,11 +70,6 @@ header{position:fixed;top:0;left:0;right:0;height:var(--hh);background:var(--sur
 .li-stars{font-size:12px;color:var(--star);}
 .li-count{font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;}
 
-.private-vers-btn {
-  padding: 5px 5px 5px 5px;
-  border: 2px solid black;
-}
-
 .tag{display:inline-flex;align-items:center;gap:3px;font-size:10px;padding:2px 7px;border-radius:20px;font-weight:500;white-space:nowrap;}
 .tag-ada{background:var(--blue-light);color:var(--blue-text);}
 .tag-free{background:var(--green-light);color:var(--green-text);}
@@ -115,7 +108,7 @@ textarea,input[type=text]{width:100%;font-size:16px;padding:10px 12px;border-rad
 textarea:focus,input[type=text]:focus{border-color:var(--green);}
 textarea{resize:none;}
 
-.btn{font-size:14px;font-weight:500;padding:11px 16px;border-radius:var(--r);border:1px solid var(--border2);background:transparent;color:var(--text);cursor:pointer;font-family:'DM Sans',sans-serif;min-height:44px;-webkit-appearance:none;appearance:none;}
+.btn{font-size:14px;font-weight:500;padding:11px 16px;border-radius:var(--r);border:1px solid var(--border2);background:transparent;color:var(--text);cursor:pointer;font-family:'DM Sans',sans-serif;min-height:44px;-webkit-appearance:none;}
 .btn:active{background:var(--surface2);}
 .btn:disabled{opacity:.5;}
 .btn-primary{background:var(--green);color:#fff;border-color:var(--green);}
@@ -188,7 +181,6 @@ textarea{resize:none;}
   <span class="header-hint">double-click map to add</span>
   <div class="header-right">
     <div class="sync-badge ok" id="sync-badge"><div class="sync-dot"></div><span id="sync-label">live</span></div>
-    <button class="private-vers-btn" onclick="window.location.href='https://potty-map-claude-frli6pywl-zoggy9s-projects.vercel.app/#'">Private Version</button>
   </div>
 </header>
 
@@ -216,7 +208,6 @@ textarea{resize:none;}
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-
 const SB_URL='https://mqfwaehuvtcajqcasrdw.supabase.co';
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1xZndhZWh1dnRjYWpxY2FzcmR3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4OTY5MTUsImV4cCI6MjA5MjQ3MjkxNX0.cLu_OS4h6U5YWot28vqT7tYlvJu6UcW2f1oeWwXHVTQ';
 
@@ -379,7 +370,6 @@ function initMap(){
     noWrap:true,
     bounds:worldBounds,
   }).addTo(map);
-  L.control.locate({position: "topright"}).addTo(map);
 
   // Desktop double-click to add
   map.on('dblclick',e=>{if(mob())return;pendingLatLng=e.latlng;showAddForm();});
